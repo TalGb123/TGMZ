@@ -1,0 +1,70 @@
+.category-list-container {
+    color: var(--text-primary);
+}
+
+.filter-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+.filter-input:focus {
+    outline: 2px solid var(--accent-blue);
+}
+
+.parts-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Adds space between rows */
+}
+
+.parts-table th {
+    text-align: left;
+    padding: 10px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Style table rows like cards */
+.parts-table tbody tr {
+    background-color: var(--bg-secondary);
+}
+
+.parts-table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.parts-table tbody tr td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.parts-table tbody tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+
+.part-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    background-color: white; /* Placeholder bg for images with transparency */
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.part-price-cell {
+    font-weight: bold;
+    color: var(--accent-blue);
+}
+
+.add-btn {
+    padding: 8px 20px;
+}
+
+.no-parts {
+    text-align: center;
+    padding: 30px;
+    font-style: italic;
+    color: var(--text-secondary);
+    background-color: transparent !important;
+}

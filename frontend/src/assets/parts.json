@@ -1,0 +1,35 @@
+{
+  "CPU": [
+    { "name": "Intel Core i9-13900K", "price": 589, "image": "https://placehold.co/50?text=i9" },
+    { "name": "AMD Ryzen 9 7950X", "price": 550, "image": "https://placehold.co/50?text=R9" },
+    { "name": "Intel Core i7-13700K", "price": 409, "image": "https://placehold.co/50?text=i7" }
+  ],
+  "CPU Cooler": [
+    { "name": "Noctua NH-D15", "price": 109, "image": "https://placehold.co/50?text=Noctua" },
+    { "name": "Corsair H100i", "price": 149, "image": "https://m.media-amazon.com/images/I/519SXOVA0JL._AC_UF894,1000_QL80_.jpg" }
+  ],
+  "Motherboard": [
+    { "name": "ASUS ROG STRIX B650E", "price": 289, "image": "https://placehold.co/50?text=ASUS" },
+    { "name": "MSI MPG Z790", "price": 319, "image": "https://placehold.co/50?text=MSI" }
+  ],
+  "RAM": [
+    { "name": "Corsair Vengeance 32GB", "price": 110, "image": "https://placehold.co/50?text=RAM" },
+    { "name": "G.Skill Trident 32GB", "price": 135, "image": "https://placehold.co/50?text=RAM" }
+  ],
+  "Storage": [
+    { "name": "Samsung 980 Pro 1TB", "price": 89, "image": "https://placehold.co/50?text=SSD" },
+    { "name": "WD Black SN850X 2TB", "price": 159, "image": "https://placehold.co/50?text=SSD" }
+  ],
+  "Power Supply": [
+    { "name": "Corsair RM850x", "price": 149, "image": "https://placehold.co/50?text=PSU" },
+    { "name": "EVGA SuperNOVA 750W", "price": 119, "image": "https://placehold.co/50?text=PSU" }
+  ],
+  "GPU": [
+    { "name": "NVIDIA RTX 4090", "price": 1599, "image": "https://placehold.co/50?text=4090" },
+    { "name": "AMD Radeon RX 7900 XTX", "price": 999, "image": "https://placehold.co/50?text=7900" }
+  ],
+  "Case": [
+    { "name": "NZXT H5 Flow", "price": 94, "image": "https://placehold.co/50?text=Case" },
+    { "name": "Fractal North", "price": 139, "image": "https://placehold.co/50?text=Case" }
+  ]
+}
