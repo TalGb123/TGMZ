@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useState, useContext } from "react"
 import axios from "axios"
+import { ServerContext } from "../../App.jsx"
 
 const Login = () => {
     const navigate = useNavigate()
+    const {server} = useContext(ServerContext)
 
     const [id, setId] = useState("");
     const [pass, setPassword] = useState("");
@@ -14,13 +16,13 @@ const Login = () => {
         setLoading(true)
         setError(null)
 
-        const response = await axios.get(`http://10.69.0.142:3000/login`, {
+        const response = await server.get(`/login`, {
             params: { id, pass }
         }).then((response) => {
             if(response.status === 200){
                 // Login successful
                 setLoading(false)
-                navigate('/gallery', { replace: true })
+                navigate('/spec-builder', { replace: true })
             }
             setLoading(false)
         }).catch((error) => {
@@ -34,7 +36,7 @@ const Login = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
             <h1>Page Login</h1>
-            <input type="text" placeholder="id / username / email" onChange={(e) => setId(e.target.value)} />
+            <input type="text" placeholder="id" onChange={(e) => setId(e.target.value)} />
             <input type="password" placeholder="password" onChange={(e) => setPassword(e.target.value)} />
             <button onClick={() => LoginHandler(id, pass)} disabled={loading}>
                 {loading ? 'Checking...' : 'Login to gallery'}
