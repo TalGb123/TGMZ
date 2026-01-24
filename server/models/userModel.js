@@ -4,7 +4,7 @@ const UserSchema = new mongoose.Schema({
     id: { 
         type: String, 
         required: true, 
-        unique: true // Ensures no two users have the same ID
+        unique: true
     }, 
     name: { 
         type: String, 
@@ -16,11 +16,11 @@ const UserSchema = new mongoose.Schema({
     },
     phone: { 
         type: String, 
-        required: false // Optional
+        required: false
     },
     birthday: { 
         type: String, 
-        required: false // Storing as String is easiest for simple inputs
+        required: false 
     },
     password: { 
         type: String, 
@@ -28,4 +28,4 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-export const User = mongoose.model('User', UserSchema);
+export const User = mongoose.models.User || mongoose.model('User', UserSchema);

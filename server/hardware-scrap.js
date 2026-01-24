@@ -21,3 +21,5 @@ export async function ScrapeHardware(url) {
   await browser.close();
   return products;
 }
+
+
