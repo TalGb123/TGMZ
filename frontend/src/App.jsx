@@ -1,6 +1,6 @@
-import { useState, createContext  } from 'react'
+import { useState, createContext } from 'react'
 import './index.css'
-import { Routes , Route, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Login from './components/jsx/Login.jsx'
 import SpecBuilder from './components/jsx/spec-builder.jsx'
 import Register from './components/jsx/Register.jsx'
@@ -10,30 +10,47 @@ export const ServerContext = createContext()
 
 function App() {
   const navigate = useNavigate()
+  const [theme, setTheme] = useState('dark')
   const server = axios.create({
-    baseURL:"http://localhost:3000"
+    baseURL: `http://localhost:${import.meta.env.VITE_SERVER_PORT}`
   })
+
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+
   return (
-    <>
-    <div style={{position:''}}>
-        <div style={{display:'flex',flexDirection:'row',gap:'10px',position:'fixed',top:0}}>
-            <Link to="/login"replace >login</Link>
-            <Link to="/register"  replace>register</Link>
-            <Link to="/spec-builder" replace>spec-builder</Link>
-            <button onClick={()=>{
-             navigate('/',{replace:true})
-            }}>Clear History</button>
-        </div>
+    <div className={`app-container ${theme}`}>
+      <ServerContext.Provider value={{ server }}>
+        <nav className="navbar">
+          <div className="nav-brand">
+            <Link to="/">🖥️ TGMZ</Link>
+          </div>
+          
+          <ul className="nav-menu">
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/spec-builder">Build PC</Link></li>
+            <li><Link to="/products">Products</Link></li>
+            <li><Link to="/about">About</Link></li>
+          </ul>
+          
+          <div className="nav-right">
+            <button className="theme-toggle" onClick={toggleTheme}>
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            <Link to="/login" className="nav-btn login-btn">Login</Link>
+            <Link to="/register" className="nav-btn register-btn">Register</Link>
+          </div>
+        </nav>
+
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Login navigate={navigate} />} />
+            <Route path="/login" element={<Login navigate={navigate} />} />
+            <Route path="/register" element={<Register navigate={navigate} />} />
+            <Route path="/spec-builder" element={<SpecBuilder navigate={navigate} />} />
+          </Routes>
+        </main>
+      </ServerContext.Provider>
     </div>
-    <ServerContext.Provider value={{server}}>
-      <Routes>
-        <Route path='/' index element={<Login  navigate={navigate}/>} />
-        <Route path='/login'  element={<Login navigate={navigate}/>}/>
-        <Route path='/register' element={<Register navigate={navigate}/>}/>
-        <Route path='/spec-builder' element={<SpecBuilder navigate={navigate}/>}/>
-      </Routes>
-    </ServerContext.Provider>
-    </>
   )
 }
 

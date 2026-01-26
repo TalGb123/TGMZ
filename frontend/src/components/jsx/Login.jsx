@@ -38,9 +38,12 @@ const Login = () => {
         setLoading(true);
 
         try{
-            const response = await server.get(`/users/login`, {
-                params: { id: identifier, pass: pass }
-            });
+            const response = await server.get(`/login`, {
+            params: {
+                id: identifier,
+                pass: pass
+            }
+        });
 
             if (response.status === 200) {
                 // Login Successful

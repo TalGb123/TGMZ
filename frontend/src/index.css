@@ -13,27 +13,180 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-primary);
 }
 
-/* Shared Button Styles */
-button {
-  background-color: var(--accent-blue);
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Theme variables */
+.app-container.dark {
+  --bg-main: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-modal: #1c2128;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --accent-blue: #58a6ff;
+  --accent-hover: #79b8ff;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --input-bg: #21262d;
+  --btn-bg: #238636;
+  --btn-hover: #2ea043;
+}
+
+.app-container.light {
+  --bg-main: #f6f8fa;
+  --bg-secondary: #ffffff;
+  --bg-modal: #ffffff;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --accent-blue: #0969da;
+  --accent-hover: #0550ae;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --input-bg: #f6f8fa;
+  --btn-bg: #1f883d;
+  --btn-hover: #1a7f37;
+}
+
+/* Theme containers */
+.app-container {
+  min-height: 100vh;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Brand */
+.nav-brand a {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+  color: var(--accent-blue);
+}
+
+/* Menu */
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 8px;
+}
+
+.nav-menu li a {
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: background 0.2s;
+}
+
+.nav-menu li a:hover {
+  background: rgba(88, 166, 255, 0.15);
+}
+
+/* Right section */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.theme-toggle:hover {
+  transform: rotate(20deg) scale(1.1);
+}
+
+/* Nav buttons */
+.nav-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.login-btn {
+  border: 1px solid var(--accent-blue);
+  color: var(--accent-blue);
+  background: transparent;
+}
+
+.login-btn:hover {
+  background: rgba(88, 166, 255, 0.15);
+}
+
+.register-btn {
+  background: var(--btn-bg);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+}
+
+.register-btn:hover {
+  background: var(--btn-hover);
+  transform: translateY(-1px);
+}
+
+/* Main content */
+.main-content {
+  padding: 24px 32px;
+  min-height: calc(100vh - 64px);
+}
+
+/* Generic button styles */
+button, .btn {
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-button:hover {
-  background-color: var(--accent-hover);
+/* Input styles */
+input, select, textarea {
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-button:disabled {
-  background-color: #555;
-  cursor: not-allowed;
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+}
+
+input::placeholder {
+  color: var(--text-secondary);
 }

@@ -46,25 +46,25 @@ const SpecBuilder = () => {
                         const selected = selections[item.id];
                         return (
                               <div key={item.id} className="spec-card">
-                              <div className="card-header">{item.name}</div>
-                              <div className="card-body">
-                                    {selected ? (
-                                          <>
-                                          <div className="part-name">{selected.name}</div>
-                                          <div className="part-price">${selected.price}</div>
-                                          <div className="part-image"><img src={selected.image} alt={selected.name} /></div>
-                                          </>
-                                    ) : (
-                                          <span className="placeholder-text">None Selected</span>
-                                    )}
+                                    <div className="card-header">{item.name}</div>
+                                    <div className="card-body">
+                                          {selected ? (
+                                                <>
+                                                <div className="part-name">{selected.name}</div>
+                                                <div className="part-price">${selected.price}</div>
+                                                <div className="part-image"><img src={selected.image} alt={selected.name} /></div>
+                                                </>
+                                          ) : (
+                                                <span className="placeholder-text">None Selected</span>
+                                          )}
+                                    </div>
+                                    <div className="card-footer">
+                                          <button onClick={() => setActiveCategory(item.id)}>
+                                                {selected ? "Change" : "Choose"}
+                                          </button>
+                                    </div>
                               </div>
-                              <div className="card-footer">
-                                    <button onClick={() => setActiveCategory(item.id)}>
-                                          {selected ? "Change" : "Choose"}
-                                    </button>
-                              </div>
-                              </div>
-                        );
+                        );``
                   })}
                   </div>
 
