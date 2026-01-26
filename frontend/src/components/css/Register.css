@@ -1,0 +1,40 @@
+.register-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 0 auto;
+    gap: 10px; /* Adds space between all inputs automatically */
+}
+
+.register-input {
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* This replaces the const errorStyle */
+.error-msg {
+    color: #d32f2f; /* A nicer shade of red */
+    font-size: 0.85rem;
+    margin-top: -5px; /* Pulls it closer to the input above it */
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.server-msg {
+    font-weight: bold;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.server-msg.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.server-msg.error {
+    background-color: #ffebee;
+    color: #c62828;
+}

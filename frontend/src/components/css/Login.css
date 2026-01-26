@@ -1,0 +1,67 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 50px auto; /* Added top margin to center it nicely */
+    padding: 20px;
+    border: 1px solid #eee; /* Subtle border */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+    gap: 15px; 
+}
+
+.login-input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.error-msg {
+    color: #d32f2f; 
+    font-size: 0.85rem;
+    margin-top: -10px; 
+    margin-bottom: 5px;
+    font-weight: 500;
+    text-align: left; /* Ensure text aligns left */
+}
+
+/* The General Error Message (Red Box) */
+.general-error {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #ef9a9a;
+}
+
+.login-btn {
+    padding: 10px;
+    background-color: #007bff; /* Standard Blue */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.login-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.secondary-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.9rem;
+}

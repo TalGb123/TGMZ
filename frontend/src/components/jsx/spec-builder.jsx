@@ -3,16 +3,27 @@ import CategoryList from "./category-list";
 import "../css/spec-builder.css"; 
 
 const SpecBuilder = () => {
+      // const hwList = [
+      //       { id: 1, name: "CPU" },
+      //       { id: 2, name: "CPU Cooler" },
+      //       { id: 3, name: "Motherboard" },
+      //       { id: 4, name: "RAM" },
+      //       { id: 5, name: "Storage" },
+      //       { id: 6, name: "Power Supply" },
+      //       { id: 7, name: "GPU" },
+      //       { id: 8, name: "Case" }
+      // ];
+
       const hwList = [
-            { id: 1, name: "CPU" },
-            { id: 2, name: "CPU Cooler" },
-            { id: 3, name: "Motherboard" },
-            { id: 4, name: "RAM" },
-            { id: 5, name: "Storage" },
-            { id: 6, name: "Power Supply" },
-            { id: 7, name: "GPU" },
-            { id: 8, name: "Case" }
-      ];
+      { id: 1, name: "CPU", dbName: "CPU" },
+      { id: 2, name: "CPU Cooler", dbName: "CPUCooler" },
+      { id: 3, name: "Motherboard", dbName: "Motherboard" },
+      { id: 4, name: "RAM", dbName: "Memory" },
+      { id: 5, name: "Storage", dbName: "Storage" },
+      { id: 6, name: "Power Supply", dbName: "PowerSupply" },
+      { id: 7, name: "GPU", dbName: "VideoCard" },
+      { id: 8, name: "Case", dbName: "Case" }
+];
 
       const [activeCategory, setActiveCategory] = useState(null);
       const [selections, setSelections] = useState({});
@@ -71,7 +82,8 @@ const SpecBuilder = () => {
                               </div>
                               
                               <CategoryList 
-                              category={activeCategoryName} 
+                              //category={activeCategoryName} 
+                              category={hwList.find(c => c.id === activeCategory)?.dbName}
                               onSelect={handleSelect} 
                               />
                         </div>
