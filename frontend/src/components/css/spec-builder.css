@@ -1,3 +1,81 @@
+.spec-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.build-id-badge {
+  color: var(--accent-blue);
+  margin-left: 10px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.search-container {
+  display: flex;
+  gap: 8px;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  width: 200px;
+}
+
+.search-input:focus {
+  outline: 2px solid var(--accent-blue);
+  border-color: transparent;
+}
+
+.search-btn {
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.search-btn:hover {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.feedback-msg {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.feedback-msg.success {
+  background-color: rgba(46, 125, 50, 0.15); /* Soft Green */
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
+}
+
+.feedback-msg.error {
+  background-color: rgba(198, 40, 40, 0.15); /* Soft Red */
+  color: #c62828;
+  border: 1px solid #c62828;
+}
+
+.save-container {
+  text-align: center;
+  margin-top: 30px;
+}
+
 .spec-builder-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -87,6 +165,17 @@
   background: var(--accent-hover);
 }
 
+.clear-btn {
+  margin-top: 8px;
+  background-color: transparent !important;
+  border: 1px solid #d32f2f !important;
+  color: #d32f2f !important;
+}
+
+.clear-btn:hover {
+  background-color: #ffebee !important;
+}
+
 .total-bar {
   padding: 16px 24px;
   background: var(--bg-secondary);
@@ -163,4 +252,27 @@
   padding: 20px;
   text-align: center;
   color: #f44336;
+}
+
+.save-btn {
+  font-size: 1.1rem;
+  padding: 12px 40px;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.save-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.save-btn:active {
+  transform: translateY(0);
 }

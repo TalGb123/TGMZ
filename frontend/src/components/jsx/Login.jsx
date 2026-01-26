@@ -6,10 +6,10 @@ import "../css/Login.css";
 
 const Login = () => {
     const navigate = useNavigate()
-    const {server} = useContext(ServerContext)
+    const {server, setUser} = useContext(ServerContext)
 
     const [identifier, setIdentifier] = useState(""); // Can be ID or Email
-    const [pass, setPassword] = useState("");
+    const [password, setPassword] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
@@ -20,7 +20,7 @@ const Login = () => {
         if (!identifier.trim()) {
             newErrors.identifier = "Please enter your ID or Email";
         }
-        if (!pass.trim()) {
+        if (!password.trim()) {
             newErrors.password = "Please enter your password";
         }
         setFieldErrors(newErrors);
@@ -38,14 +38,16 @@ const Login = () => {
         setLoading(true);
 
         try{
-            const response = await server.get(`/login`, {
+            const response = await server.get(`/users/login`, {
             params: {
                 id: identifier,
-                pass: pass
+                pass: password
             }
         });
 
             if (response.status === 200) {
+                setUser(response.data.user);
+
                 // Login Successful
                 setLoading(false);
                 navigate('/spec-builder', { replace: true });
@@ -83,7 +85,7 @@ const Login = () => {
                 className="login-input"
                 type="password" 
                 placeholder="Password" 
-                value={pass}
+                value={password}
                 onChange={(e) => setPassword(e.target.value)} 
             />
             {/* Specific error for empty Password */}

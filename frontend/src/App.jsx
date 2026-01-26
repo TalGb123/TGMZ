@@ -10,16 +10,25 @@ export const ServerContext = createContext()
 
 function App() {
   const navigate = useNavigate()
+
+  const [user, setUser] = useState(null); 
+
   const [theme, setTheme] = useState('dark')
+
   const server = axios.create({
     baseURL: `http://localhost:${import.meta.env.VITE_SERVER_PORT}`
   })
+
+  const handleLogout = () => {
+    setUser(null);
+    navigate('/login');
+  }
 
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
 
   return (
     <div className={`app-container ${theme}`}>
-      <ServerContext.Provider value={{ server }}>
+      <ServerContext.Provider value={{ server, user, setUser}}>
         <nav className="navbar">
           <div className="nav-brand">
             <Link to="/">🖥️ TGMZ</Link>
@@ -36,8 +45,21 @@ function App() {
             <button className="theme-toggle" onClick={toggleTheme}>
               {theme === 'dark' ? '☀️' : '🌙'}
             </button>
-            <Link to="/login" className="nav-btn login-btn">Login</Link>
-            <Link to="/register" className="nav-btn register-btn">Register</Link>
+            {user ? (
+                // IF LOGGED IN: Show Name + Logout
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 'bold' }}>Hello, {user.name}</span>
+                    <button onClick={handleLogout} className="nav-btn" style={{backgroundColor: 'red'}}>
+                        Logout
+                    </button>
+                </div>
+            ) : (
+                // IF GUEST: Show Login + Register
+                <>
+                    <Link to="/login" className="nav-btn login-btn">Login</Link>
+                    <Link to="/register" className="nav-btn register-btn">Register</Link>
+                </>
+            )}
           </div>
         </nav>
 

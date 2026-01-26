@@ -5,6 +5,7 @@ import connectToMongoDB from './config/db.js';
 
 import userRoutes from './routes/user.js';
 import productRoutes from './routes/products.js';
+import buildRoutes from './routes/build.js';
 
 //import hardwareScrapRoutes from './routes/hardwareScrap.js';
 
@@ -17,6 +18,7 @@ connectToMongoDB();
 
 app.use('/users', userRoutes); 
 app.use('/products', productRoutes);
+app.use('/builds', buildRoutes);
 
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);

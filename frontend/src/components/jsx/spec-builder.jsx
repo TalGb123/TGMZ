@@ -1,46 +1,124 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import CategoryList from "./category-list";
+import { ServerContext } from "../../App";      
 import "../css/spec-builder.css"; 
 
 const SpecBuilder = () => {
-      // const hwList = [
-      //       { id: 1, name: "CPU" },
-      //       { id: 2, name: "CPU Cooler" },
-      //       { id: 3, name: "Motherboard" },
-      //       { id: 4, name: "RAM" },
-      //       { id: 5, name: "Storage" },
-      //       { id: 6, name: "Power Supply" },
-      //       { id: 7, name: "GPU" },
-      //       { id: 8, name: "Case" }
-      // ];
+      const { server } = useContext(ServerContext);
 
       const hwList = [
-      { id: 1, name: "CPU", dbName: "CPU" },
-      { id: 2, name: "CPU Cooler", dbName: "CPUCooler" },
-      { id: 3, name: "Motherboard", dbName: "Motherboard" },
-      { id: 4, name: "RAM", dbName: "Memory" },
-      { id: 5, name: "Storage", dbName: "Storage" },
-      { id: 6, name: "Power Supply", dbName: "PowerSupply" },
-      { id: 7, name: "GPU", dbName: "VideoCard" },
-      { id: 8, name: "Case", dbName: "Case" }
-];
+            { id: 1, name: "CPU", dbName: "CPU", schemaKey: "cpu" },
+            { id: 2, name: "CPU Cooler", dbName: "CPUCooler", schemaKey: "cpu_cooler" },
+            { id: 3, name: "Motherboard", dbName: "Motherboard", schemaKey: "motherboard" },
+            { id: 4, name: "RAM", dbName: "Memory", schemaKey: "ram" },
+            { id: 5, name: "Storage", dbName: "Storage", schemaKey: "storage" },
+            { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "power_supply" },
+            { id: 7, name: "GPU", dbName: "VideoCard", schemaKey: "gpu" },
+            { id: 8, name: "Case", dbName: "Case", schemaKey: "case" }
+      ];
 
       const [activeCategory, setActiveCategory] = useState(null);
       const [selections, setSelections] = useState({});
+
+      const [searchId, setSearchId] = useState("");
+      const [currentBuildId, setCurrentBuildId] = useState(null);
+      const [msg, setMsg] = useState("");
 
       const handleSelect = (part) => {
             setSelections(prev => ({ ...prev, [activeCategory]: part }));
             setActiveCategory(null); 
       };
 
+      const handleSave = async () => {
+            if (Object.keys(selections).length === 0) {
+                  setMsg("❌ Cannot save an empty build.");
+                  return;
+            }
+
+            setMsg("Saving...");
+            const payload = {};
+            hwList.forEach(item => {
+                  if (selections[item.id]) {
+                        payload[item.schemaKey] = selections[item.id];
+                  }
+            });
+            try {
+                  const res = await server.post('/builds', payload);
+                  setCurrentBuildId(res.data.id); // Update Header
+                  setMsg(`✅ Saved! Build ID: ${res.data.id}`);
+            } catch (err) {
+                  console.error(err);
+                  setMsg("❌ Error saving build.");
+            }
+      };
+
+      const handleSearch = async () => {
+            const cleanId = searchId.trim();
+            if (!cleanId) {
+                  setMsg("⚠️ Please enter a Build ID.");
+                  return;
+            }
+            setMsg("Loading...");
+            try {
+                  const res = await server.get(`/builds/${cleanId}`);
+                  const buildData = res.data;
+
+                  const newSelections = {};
+                  hwList.forEach(item => {
+                        if (buildData[item.schemaKey]) {
+                              newSelections[item.id] = buildData[item.schemaKey];
+                        }
+                  });
+
+                  setSelections(newSelections);
+                  setCurrentBuildId(buildData._id);
+                  setMsg("✅ Build Loaded Successfully!");
+            } catch (err) {
+                  console.error(err);
+                  setMsg("❌ Build not found or invalid ID.");
+            }
+      };
+
+      const handleClear = (id) => {
+            setSelections(prev => {
+                  const newSelections = { ...prev };
+                  delete newSelections[id]; // Removes the key (e.g., id 1 for CPU)
+                  return newSelections;
+            });
+      };
+
       const totalPrice = Object.values(selections).reduce((sum, item) => sum + (item.price || 0), 0);
       const activeCategoryName = hwList.find(c => c.id === activeCategory)?.name;
 
-      return (
+     return (
             <div className="spec-builder-container">
-                  <h2>PC Spec Builder</h2>
+                  {/* HEADER AREA: Title & Search */}
+                  <div className="spec-header-row">
+                        <h2>
+                              PC Spec Builder 
+                              {currentBuildId && <span className="build-id-badge">- Build #{currentBuildId}</span>}
+                        </h2>
 
-                  {/* Replaced Table with CSS Grid Container */}
+                        <div className="search-container">
+                              <input 
+                                    className="search-input"
+                                    type="text" 
+                                    placeholder="Enter Build ID..." 
+                                    value={searchId}
+                                    onChange={(e) => setSearchId(e.target.value)}
+                              />
+                              <button className="search-btn" onClick={handleSearch}>Load</button>
+                        </div>
+                  </div>
+
+                  {/* FEEDBACK MESSAGE */}
+                  {msg && (
+                        <div className={`feedback-msg ${msg.includes("✅") ? "success" : "error"}`}>
+                              {msg}
+                        </div>
+                  )}
+
+                  {/* GRID AREA */}
                   <div className="spec-grid">
                   {hwList.map(item => {
                         const selected = selections[item.id];
@@ -51,7 +129,7 @@ const SpecBuilder = () => {
                                           {selected ? (
                                                 <>
                                                 <div className="part-name">{selected.name}</div>
-                                                <div className="part-price">${selected.price}</div>
+                                                <div className="part-price">₪{selected.price}</div>
                                                 <div className="part-image"><img src={selected.image} alt={selected.name} /></div>
                                                 </>
                                           ) : (
@@ -62,17 +140,33 @@ const SpecBuilder = () => {
                                           <button onClick={() => setActiveCategory(item.id)}>
                                                 {selected ? "Change" : "Choose"}
                                           </button>
+                                          {selected && (
+                                                <button 
+                                                      className="clear-btn" 
+                                                      onClick={() => handleClear(item.id)}
+                                                >
+                                                      Clear
+                                                </button>
+                                          )}
                                     </div>
                               </div>
-                        );``
+                        );
                   })}
                   </div>
 
+                  {/* TOTAL BAR */}
                   <div className="total-bar">
-                  Total: ${totalPrice}
+                        Total: ₪{totalPrice}
+                  </div>
+                  
+                  {/* SAVE BUTTON AREA */}
+                  <div className="save-container">
+                        <button onClick={handleSave} className="save-btn">
+                              💾 Save This Build
+                        </button>
                   </div>
 
-                  {/* Modal Overlay */}
+                  {/* Modal Overlay (Unchanged) */}
                   {activeCategory && (
                   <div className="modal-overlay">
                         <div className="modal-content">
@@ -82,7 +176,6 @@ const SpecBuilder = () => {
                               </div>
                               
                               <CategoryList 
-                              //category={activeCategoryName} 
                               category={hwList.find(c => c.id === activeCategory)?.dbName}
                               onSelect={handleSelect} 
                               />
@@ -91,6 +184,6 @@ const SpecBuilder = () => {
                   )}
             </div>
       );
-};
+};    
 
 export default SpecBuilder;
