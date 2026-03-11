@@ -103,7 +103,7 @@ const Login = () => {
                 onClick={LoginHandler} 
                 disabled={loading}
             >
-                {loading ? 'Checking...' : 'Login to gallery'}
+                {loading ? 'Checking...' : 'Login'}
             </button>
 
             <button 

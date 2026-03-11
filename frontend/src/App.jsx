@@ -1,10 +1,11 @@
 import { useState, createContext } from 'react'
 import './index.css'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
-import Login from './components/jsx/Login.jsx'
+import Login from './components/jsx/login.jsx'
 import SpecBuilder from './components/jsx/spec-builder.jsx'
-import Register from './components/jsx/Register.jsx'
+import Register from './components/jsx/register.jsx'
 import axios from 'axios'
+import BuildSummary from './components/jsx/summary.jsx'
 
 export const ServerContext = createContext()
 
@@ -69,6 +70,7 @@ function App() {
             <Route path="/login" element={<Login navigate={navigate} />} />
             <Route path="/register" element={<Register navigate={navigate} />} />
             <Route path="/spec-builder" element={<SpecBuilder navigate={navigate} />} />
+            <Route path="/build/:id" element={<BuildSummary />} />
           </Routes>
         </main>
       </ServerContext.Provider>

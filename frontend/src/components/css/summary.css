@@ -1,0 +1,64 @@
+.summary-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 24px;
+    color: var(--text-color, #fff);
+}
+
+.summary-container h2 {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.summary-table th,
+.summary-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+}
+
+.summary-table th {
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+}
+
+.summary-total {
+    font-size: 1.4rem;
+    font-weight: bold;
+    padding: 16px;
+    background: #e67e22;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.summary-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.summary-actions button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    background: #3498db;
+    color: #fff;
+}
+
+.summary-actions button:hover {
+    opacity: 0.85;
+}
+
+.error-msg {
+    text-align: center;
+    color: #e74c3c;
+}

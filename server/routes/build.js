@@ -10,22 +10,25 @@ router.post('/', async (req, res) => {
     
         res.status(201).json({ 
             message: "Build Saved!", 
-            id: savedBuild._id,
+            id: savedBuild.buildID,
             build: savedBuild 
         });
-    } catch (error) {
+    } 
+    catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Failed to save build" });
     }
 });
 
 router.get('/:id', async (req, res) => {
     try {
-        const build = await Build.findById(req.params.id);
+        const build = await Build.findOne({ buildID: Number(req.params.id) });
         if (!build) {
             return res.status(404).json({ message: "Build not found" });
         }
         res.json(build);
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: "Invalid ID format" });
     }
 });

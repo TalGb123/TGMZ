@@ -1,10 +1,14 @@
 import React, { useState, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import CategoryList from "./category-list";
 import { ServerContext } from "../../App";      
 import "../css/spec-builder.css"; 
 
+
 const SpecBuilder = () => {
-      const { server } = useContext(ServerContext);
+      const { server } = useContext(ServerContext);   
+      const location = useLocation();
+      const navigate = useNavigate();
 
       const hwList = [
             { id: 1, name: "CPU", dbName: "CPU", schemaKey: "cpu" },
@@ -21,8 +25,29 @@ const SpecBuilder = () => {
       const [selections, setSelections] = useState({});
 
       const [searchId, setSearchId] = useState("");
-      const [currentBuildId, setCurrentBuildId] = useState(null);
       const [msg, setMsg] = useState("");
+
+      React.useEffect(() => {
+      const editId = location.state?.editBuildId;
+      if (!editId) return;
+
+      const loadBuild = async () => {
+            try {
+                  const res = await server.get(`/builds/${editId}`);
+                  const buildData = res.data;
+                  const newSelections = {};
+                  hwList.forEach(item => {
+                  if (buildData[item.schemaKey]) {
+                        newSelections[item.id] = buildData[item.schemaKey];
+                  }
+                  });
+                  setSelections(newSelections);
+            } catch (err) {
+                  console.error(err);
+            }
+      };
+      loadBuild();
+      }, [location.state]);
 
       const handleSelect = (part) => {
             setSelections(prev => ({ ...prev, [activeCategory]: part }));
@@ -44,9 +69,10 @@ const SpecBuilder = () => {
             });
             try {
                   const res = await server.post('/builds', payload);
-                  setCurrentBuildId(res.data.id); // Update Header
                   setMsg(`✅ Saved! Build ID: ${res.data.id}`);
-            } catch (err) {
+                  navigate(`/build/${res.data.id}`);
+            } 
+            catch (err) {
                   console.error(err);
                   setMsg("❌ Error saving build.");
             }
@@ -60,18 +86,7 @@ const SpecBuilder = () => {
             }
             setMsg("Loading...");
             try {
-                  const res = await server.get(`/builds/${cleanId}`);
-                  const buildData = res.data;
-
-                  const newSelections = {};
-                  hwList.forEach(item => {
-                        if (buildData[item.schemaKey]) {
-                              newSelections[item.id] = buildData[item.schemaKey];
-                        }
-                  });
-
-                  setSelections(newSelections);
-                  setCurrentBuildId(buildData._id);
+                  navigate(`/build/${cleanId}`);
                   setMsg("✅ Build Loaded Successfully!");
             } catch (err) {
                   console.error(err);
@@ -96,7 +111,6 @@ const SpecBuilder = () => {
                   <div className="spec-header-row">
                         <h2>
                               PC Spec Builder 
-                              {currentBuildId && <span className="build-id-badge">- Build #{currentBuildId}</span>}
                         </h2>
 
                         <div className="search-container">
