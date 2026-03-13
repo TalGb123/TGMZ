@@ -23,16 +23,18 @@ const normalizePart = (p) => {
 
     if (clone.category === "CPUCooler") {
         if (Array.isArray(clone.rpm)) {
-        clone.rpmMin = Math.min(...clone.rpm);
-        clone.rpmMax = Math.max(...clone.rpm);
-        } else if (typeof clone.rpm === "number") {
-        clone.rpmMin = clone.rpmMax = clone.rpm;
+            clone.rpmMin = Math.min(...clone.rpm);
+            clone.rpmMax = Math.max(...clone.rpm);
+        }   
+        else if (typeof clone.rpm === "number") {
+            clone.rpmMin = clone.rpmMax = clone.rpm;
         }
         if (Array.isArray(clone.noise_level)) {
-        clone.noiseMin = Math.min(...clone.noise_level);
-        clone.noiseMax = Math.max(...clone.noise_level);
-        } else if (typeof clone.noise_level === "number") {
-        clone.noiseMin = clone.noiseMax = clone.noise_level;
+            clone.noiseMin = Math.min(...clone.noise_level);
+            clone.noiseMax = Math.max(...clone.noise_level);
+        } 
+        else if (typeof clone.noise_level === "number") {
+            clone.noiseMin = clone.noiseMax = clone.noise_level;
         }
     }
     return clone;
@@ -95,6 +97,8 @@ const FILTERS = {
 const CategoryList = ({ category, onSelect }) => {
     const { server } = useContext(ServerContext);
     const [parts, setParts] = useState([]);
+
+    const [globalOptions, setGlobalOptions] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState("");
@@ -103,212 +107,208 @@ const CategoryList = ({ category, onSelect }) => {
     const filterDefs = FILTERS[category] || [];
 
     useEffect(() => {
-        const fetchParts = async () => {
-        setLoading(true);
-        try {
-            const response = await server.get(`/products/category/${category}`);
-            const normalized = response.data.map(normalizePart);
-            setParts(normalized);
-            setError(null);
-        } catch (err) {
-            setError("Could not load parts from server.");
-        } finally {
-            setLoading(false);
-        }
+        const fetchInitialOptions = async () => {
+            try {
+                const response = await server.get(`/products/category/${category}`);
+                const normalized = response.data.map(normalizePart);
+                
+                const map = {};
+                filterDefs.forEach(f => {
+                    if (f.type === "select") {
+                        map[f.key] = Array.from(new Set(normalized.map(p => p[f.key]).filter(v => v !== null && v !== undefined)));
+                    }
+                });
+                setGlobalOptions(map);
+            } 
+            catch (err) {
+                console.error("Could not load initial options map", err);
+            }
         };
-        if (category) fetchParts();
+        if (category) fetchInitialOptions();
     }, [category, server]);
 
-    const optionsMap = useMemo(() => {
-        const map = {};
-        filterDefs.forEach(f => {
-        if (f.type === "select") {
-            map[f.key] = Array.from(new Set(parts.map(p => p[f.key]).filter(v => v !== null && v !== undefined)));
-        }
-        });
-        return map;
-    }, [parts, filterDefs]);
+    useEffect(() => {
+        let isCancelled = false;
+        const fetchParts = async () => {
+            setLoading(true);
+            try {
+                const params = new URLSearchParams();
+                
+                if (filter.trim()) params.append('name', filter);
+                if (advFilters.minPrice) params.append('minPrice', advFilters.minPrice);
+                if (advFilters.maxPrice) params.append('maxPrice', advFilters.maxPrice);
+                if (sortBy) params.append('sortBy', sortBy);
 
-    const filteredParts = parts.filter(p => {
-        const nameOk = p.name.toLowerCase().includes(filter.toLowerCase());
-        const priceOk =
-        (!advFilters.minPrice || p.price >= Number(advFilters.minPrice)) &&
-        (!advFilters.maxPrice || p.price <= Number(advFilters.maxPrice));
-        
-        const rangeOk = filterDefs.filter(f => f.type === "range" && f.key !== "price").every(f => {
-        const min = advFilters.values[`${f.key}Min`];
-        const max = advFilters.values[`${f.key}Max`];
-        return (!min || p[f.key] >= Number(min)) && (!max || p[f.key] <= Number(max));
-        });
-        
-        const selectsOk = filterDefs.filter(f => f.type === "select").every(f => {
-        const val = advFilters.values[f.key];
-        return !val || String(p[f.key]) === String(val);
-        });
-        
-        return nameOk && priceOk && rangeOk && selectsOk;
-    });
+                for (const [key, value] of Object.entries(advFilters.values)) {
+                    if (value) params.append(key, value);
+                }
 
-        const sortedParts = [...filteredParts].sort((a, b) => {
-        const aHasPrice = a.price != null && a.price > 0;
-        const bHasPrice = b.price != null && b.price > 0;
-        
-        if (!aHasPrice && bHasPrice) return 1;
-        if (aHasPrice && !bHasPrice) return -1;
-        if (!aHasPrice && !bHasPrice) return 0;
-        
-        switch (sortBy) {
-            case "price-asc":
-                return a.price - b.price;
-            case "price-desc":
-                return b.price - a.price;
-            case "name-asc":
-                return a.name.localeCompare(b.name);
-            case "name-desc":
-                return b.name.localeCompare(a.name);
-            default:
-                return 0;
-        }
-    });
+                const response = await server.get(`/products/category/${category}?${params.toString()}`);
+                
+                if (!isCancelled) {
+                    const normalized = response.data.map(normalizePart);
+                    setParts(normalized);
+                    setError(null);
+                }
+            } 
+            catch (err) {
+                if (!isCancelled) setError("Could not load parts from server.");
+            } 
+            finally {
+                if (!isCancelled) setLoading(false);
+            }
+        };
 
-  if (loading) return <div className="loading-spinner">Loading from Server...</div>;
-  if (error) return <div className="error-msg">{error}</div>;
+        const timeoutId = setTimeout(() => {
+           if (category) fetchParts();
+        }, 300);
 
-  return (
-    <div className="category-list-layout">
-        <div className="parts-panel">
-            <div className="search-sort-bar">
-              <input
-                type="text"
-                placeholder="Filter parts..."
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="filter-input"
-              />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="sort-select"
-              >
-                <option value="">Sort by...</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="name-asc">Name: A-Z</option>
-                <option value="name-desc">Name: Z-A</option>
-              </select>
-            </div>
-            
-            <div className="table-wrapper">
-              <table className="parts-table">
-                <thead>
-                  <tr>
-                    <th>Image</th>
-                    <th>Part Name</th>
-                    <th>Price</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-              </table>
-              <div className="parts-scroll">
+        return () => {
+            isCancelled = true;
+            clearTimeout(timeoutId);
+        };
+    }, [category, server, filter, advFilters, sortBy]);
+
+    const sortedParts = parts;
+
+    if (loading) return <div className="loading-spinner">Loading from Server...</div>;
+    if (error) return <div className="error-msg">{error}</div>;
+
+    return (
+        <div className="category-list-layout">
+            <div className="parts-panel">
+                <div className="search-sort-bar">
+                <input
+                    type="text"
+                    placeholder="Filter parts..."
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="filter-input"
+                />
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="sort-select"
+                >
+                    <option value="">Sort by...</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A-Z</option>
+                    <option value="name-desc">Name: Z-A</option>
+                </select>
+                </div>
+                
+                <div className="table-wrapper">
                 <table className="parts-table">
-                  <tbody>
-                    {sortedParts.length > 0 ? (
-                      sortedParts.map((part, index) => (
-                        <tr key={part._id || index}>
-                          <td><img src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} alt={part.name} className="part-image" /></td>
-                          <td style={{ fontWeight: '500' }}>{part.name}</td>
-                          <td className="part-price-cell">₪{part.price}</td>
-                          <td style={{ textAlign: "right" }}>
-                            <button onClick={() => onSelect(part)} className="add-btn">Add</button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr><td colSpan={4} className="no-parts">No parts found for {category}.</td></tr>
-                    )}
-                  </tbody>
+                    <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Part Name</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
                 </table>
-              </div>
+                <div className="parts-scroll">
+                    <table className="parts-table">
+                        <tbody>
+                            {sortedParts.length > 0 ? (
+                            sortedParts.map((part, index) => (
+                                <tr key={part._id || index}>
+                                <td><img src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} alt={part.name} className="part-image" /></td>
+                                <td style={{ fontWeight: '500' }}>{part.name}</td>
+                                <td className="part-price-cell">₪{part.price}</td>
+                                <td style={{ textAlign: "right" }}>
+                                    <button onClick={() => onSelect(part)} className="add-btn">Add</button>
+                                </td>
+                                </tr>
+                            ))
+                            ) : (
+                            <tr><td colSpan={4} className="no-parts">No parts found for {category}.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         {filterDefs.length > 0 && (
             <div className="filters-panel">
-            <h4>Filters</h4>
-            <div className="filters-scrollable">
-                {filterDefs.map(f =>
-                f.type === "range" && f.key === "price" ? (
-                    <div key="price" className="filter-row">
-                    <label>{f.label || "Price"}</label>
-                    <div className="price-range">
-                        <input
-                        type="number"
-                        placeholder="Min"
-                        value={advFilters.minPrice}
-                        onChange={e => setAdvFilters(prev => ({ ...prev, minPrice: e.target.value }))}
-                        />
-                        <input
-                        type="number"
-                        placeholder="Max"
-                        value={advFilters.maxPrice}
-                        onChange={e => setAdvFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
-                        />
-                    </div>
-                    </div>
-                ) : f.type === "range" ? (
-                    <div key={f.key} className="filter-row">
-                    <label>{f.label || f.key}</label>
-                    <div className="price-range">
-                        <input
-                        type="number"
-                        placeholder="Min"
-                        value={advFilters.values[`${f.key}Min`] || ""}
-                        onChange={e => setAdvFilters(prev => ({
-                            ...prev,
-                            values: { ...prev.values, [`${f.key}Min`]: e.target.value }
-                        }))}
-                        />
-                        <input
-                        type="number"
-                        placeholder="Max"
-                        value={advFilters.values[`${f.key}Max`] || ""}
-                        onChange={e => setAdvFilters(prev => ({
-                            ...prev,
-                            values: { ...prev.values, [`${f.key}Max`]: e.target.value }
-                        }))}
-                        />
-                    </div>
-                    </div>
-                ) : (
-                    <div key={f.key} className="filter-row">
-                    <label>{f.label || f.key}</label>
-                    <select
-                        value={advFilters.values[f.key] || ""}
-                        onChange={e =>
-                        setAdvFilters(prev => ({
-                            ...prev,
-                            values: { ...prev.values, [f.key]: e.target.value }
-                        }))
-                        }
-                    >
-                        <option value="">All</option>
-                        {(optionsMap[f.key] || []).map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
-                    </div>
-                )
-                )}
+                <h4>Filters</h4>
+                <div className="filters-scrollable">
+                    {filterDefs.map(f =>
+                        f.type === "range" && f.key === "price" ? (
+                            <div key="price" className="filter-row">
+                                <label>{f.label || "Price"}</label>
+                                <div className="price-range">
+                                    <input
+                                        type="number"
+                                        placeholder="Min"
+                                        value={advFilters.minPrice}
+                                        onChange={e => setAdvFilters(prev => ({ ...prev, minPrice: e.target.value }))}
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Max"
+                                        value={advFilters.maxPrice}
+                                        onChange={e => setAdvFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
+                                    />
+                                </div>
+                            </div>
+                        ) : f.type === "range" ? (
+                            <div key={f.key} className="filter-row">
+                                <label>{f.label || f.key}</label>
+                                <div className="price-range">
+                                    <input
+                                        type="number"
+                                        placeholder="Min"
+                                        value={advFilters.values[`${f.key}Min`] || ""}
+                                        onChange={e => setAdvFilters(prev => ({
+                                            ...prev,
+                                            values: { ...prev.values, [`${f.key}Min`]: e.target.value }
+                                        }))}
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Max"
+                                        value={advFilters.values[`${f.key}Max`] || ""}
+                                        onChange={e => setAdvFilters(prev => ({
+                                            ...prev,
+                                            values: { ...prev.values, [`${f.key}Max`]: e.target.value }
+                                        }))}
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div key={f.key} className="filter-row">
+                            <label>{f.label || f.key}</label>
+                            <select
+                                value={advFilters.values[f.key] || ""}
+                                onChange={e =>
+                                setAdvFilters(prev => ({
+                                    ...prev,
+                                    values: { ...prev.values, [f.key]: e.target.value }
+                                }))
+                                }
+                            >
+                                <option value="">All</option>
+                                {(globalOptions[f.key] || []).map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                                </select>
+                            </div>
+                        )
+                    )}
+                </div>
+                <button
+                    type="button"
+                    className="clear-filters-btn"
+                    onClick={() => setAdvFilters({ minPrice: "", maxPrice: "", values: {} })}
+                >
+                    Clear filters
+                </button>
             </div>
-            <button
-                type="button"
-                className="clear-filters-btn"
-                onClick={() => setAdvFilters({ minPrice: "", maxPrice: "", values: {} })}
-            >
-                Clear filters
-            </button>
-            </div>
-        )}
+            )}
         </div>
     );
 }

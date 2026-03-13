@@ -14,7 +14,7 @@ function App() {
 
   const [user, setUser] = useState(null); 
 
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState('light')
 
   const server = axios.create({
     baseURL: `http://localhost:${import.meta.env.VITE_SERVER_PORT}`
@@ -44,7 +44,7 @@ function App() {
           
           <div className="nav-right">
             <button className="theme-toggle" onClick={toggleTheme}>
-              {theme === 'dark' ? '☀️' : '🌙'}
+              {theme === 'light' ? '☀️' : '🌙'}
             </button>
             {user ? (
                 // IF LOGGED IN: Show Name + Logout
