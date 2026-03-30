@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import { ServerContext } from "../../App";
 import partsData from "../../assets/parts.json"; 
-import "../css/category-list.css"; 
+import "../css/category-list.css";
+import { checkCompatibility } from "../../utils/compatibility.js";
 
 const normalizePart = (p) => {
     const clone = { ...p };
@@ -94,7 +95,7 @@ const FILTERS = {
     ],
 };
 
-const CategoryList = ({ category, onSelect }) => {
+const CategoryList = ({ category, onSelect, selections = {} }) => {
     const { server } = useContext(ServerContext);
     const [parts, setParts] = useState([]);
 
@@ -106,6 +107,7 @@ const CategoryList = ({ category, onSelect }) => {
     const [sortBy, setSortBy] = useState(""); 
     const filterDefs = FILTERS[category] || [];
 
+    // ... (Your useEffects for fetchInitialOptions and fetchParts remain exactly the same) ...
     useEffect(() => {
         const fetchInitialOptions = async () => {
             try {
@@ -169,7 +171,25 @@ const CategoryList = ({ category, onSelect }) => {
         };
     }, [category, server, filter, advFilters, sortBy]);
 
-    const sortedParts = parts;
+
+    // --- 4. APPLY COMPATIBILITY AND SORT ---
+    const processedParts = useMemo(() => {
+        if (!parts) return [];
+        
+        return parts.map(part => {
+            const compat = checkCompatibility(part, selections);
+            return { ...part, ...compat };
+        }).sort((a, b) => {
+            // Assign a score: 1 for Perfect, 2 for Yellow Warning, 3 for Red Error
+            const getScore = (p) => {
+                if (!p.isCompatible) return 3; // Red
+                if (p.isWarning) return 2;     // Yellow
+                return 1;                      // Clean
+            };
+            return getScore(a) - getScore(b);
+        });
+    }, [parts, selections]);
+
 
     if (loading) return <div className="loading-spinner">Loading from Server...</div>;
     if (error) return <div className="error-msg">{error}</div>;
@@ -178,24 +198,25 @@ const CategoryList = ({ category, onSelect }) => {
         <div className="category-list-layout">
             <div className="parts-panel">
                 <div className="search-sort-bar">
-                <input
-                    type="text"
-                    placeholder="Filter parts..."
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                    className="filter-input"
-                />
-                <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="sort-select"
-                >
-                    <option value="">Sort by...</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="name-asc">Name: A-Z</option>
-                    <option value="name-desc">Name: Z-A</option>
-                </select>
+                    {/* ... (Search and Sort UI unchanged) ... */}
+                    <input
+                        type="text"
+                        placeholder="Filter parts..."
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        className="filter-input"
+                    />
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="sort-select"
+                    >
+                        <option value="">Sort by...</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="name-asc">Name: A-Z</option>
+                        <option value="name-desc">Name: Z-A</option>
+                    </select>
                 </div>
                 
                 <div className="table-wrapper">
@@ -210,30 +231,66 @@ const CategoryList = ({ category, onSelect }) => {
                     </thead>
                 </table>
                 <div className="parts-scroll">
-                    <table className="parts-table">
-                        <tbody>
-                            {sortedParts.length > 0 ? (
-                            sortedParts.map((part, index) => (
-                                <tr key={part._id || index}>
-                                <td><img src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} alt={part.name} className="part-image" /></td>
-                                <td style={{ fontWeight: '500' }}>{part.name}</td>
-                                <td className="part-price-cell">₪{part.price}</td>
-                                <td style={{ textAlign: "right" }}>
-                                    <button onClick={() => onSelect(part)} className="add-btn">Add</button>
-                                </td>
-                                </tr>
-                            ))
-                            ) : (
-                            <tr><td colSpan={4} className="no-parts">No parts found for {category}.</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                        <table className="parts-table">
+                            <tbody>
+                                {processedParts.length > 0 ? (
+                                processedParts.map((part, index) => {
+                                    
+                                    // Determine styling based on the status
+                                    let bgColor = "transparent";
+                                    let rowOpacity = 1;
+                                    let icon = null;
+
+                                    if (!part.isCompatible) {
+                                        // Hard Error (Red)
+                                        bgColor = "rgba(255, 0, 0, 0.05)";
+                                        rowOpacity = 0.5;
+                                        icon = "❌";
+                                    } else if (part.isWarning) {
+                                        // Soft Warning (Yellow)
+                                        bgColor = "rgba(255, 165, 0, 0.15)";
+                                        rowOpacity = 0.85; // Less transparent than red
+                                        icon = "⚠️";
+                                    }
+
+                                    return (
+                                        <tr 
+                                            key={part._id || index} 
+                                            style={{ opacity: rowOpacity, backgroundColor: bgColor }}
+                                        >
+                                        <td><img src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} alt={part.name} className="part-image" /></td>
+                                        
+                                        <td style={{ fontWeight: '500' }}>
+                                            {part.name}
+                                            {(icon) && (
+                                                <span 
+                                                    title={part.reason} 
+                                                    style={{ cursor: "help", marginLeft: "8px", fontSize: "1.2em" }}
+                                                >
+                                                    {icon}
+                                                </span>
+                                            )}
+                                        </td>
+                                        
+                                        <td className="part-price-cell">${part.price}</td>
+                                        <td style={{ textAlign: "right" }}>
+                                            <button onClick={() => onSelect(part)} className="add-btn">Add</button>
+                                        </td>
+                                        </tr>
+                                    );
+                                })
+                                ) : (
+                                <tr><td colSpan={4} className="no-parts">No parts found for {category}.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
             </div>
         </div>
 
         {filterDefs.length > 0 && (
             <div className="filters-panel">
+                {/* ... (Filters sidebar unchanged) ... */}
                 <h4>Filters</h4>
                 <div className="filters-scrollable">
                     {filterDefs.map(f =>

@@ -60,13 +60,13 @@ const BuildSummary = () => {
                         <tr key={i}>
                             <td>{p.category}</td>
                             <td>{p.name}</td>
-                            <td>₪{p.price}</td>
+                            <td>${p.price}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            <div className="summary-total">Total: ₪{total}</div>
+            <div className="summary-total">Total: ${total}</div>
 
             <div className="summary-actions">
                 <button onClick={() => navigate("/spec-builder", { state: { editBuildId: build.buildID } })}>Edit Build</button>
