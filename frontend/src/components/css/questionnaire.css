@@ -1,0 +1,153 @@
+/* Ensure the modal content scroll nicely if it gets too tall */
+.modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.questionnaire-body {
+    padding: 20px;
+    overflow-y: auto;
+    color: var(--text-primary);
+}
+
+.questionnaire-body h4 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.questionnaire-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.question {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.question label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+/* Button Groups */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Base Question Button Style */
+.q-btn {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex: 1 1 auto;
+    text-align: center;
+}
+
+/* Hover state */
+.q-btn:hover {
+    background-color: var(--input-bg);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Selected "Lit Up" State */
+.q-btn.selected {
+    background-color: var(--accent-blue);
+    color: #ffffff; /* We keep text white when active so it's readable on blue */
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 10px var(--accent-blue);
+    transform: translateY(-2px);
+    font-weight: 600;
+}
+
+/* Mini Buttons for Preferences */
+.button-group.mini .q-btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    flex: 0 1 auto;
+}
+
+/* Custom Text Input */
+.q-input {
+    background-color: var(--input-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 400px;
+}
+
+.q-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.q-input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2); 
+}
+
+/* Remove default arrows from number input */
+.q-input::-webkit-outer-spin-button,
+.q-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.q-input[type=number] {
+    appearance: textfield;
+}
+
+/* Footer & Submit Button */
+.questionnaire-footer {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.submit-btn {
+    background-color: var(--btn-bg);
+    color: white; 
+    border: none;
+    border-radius: 8px;
+    padding: 14px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.submit-btn:hover {
+    transform: scale(1.05);
+    background-color: var(--btn-hover);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
+}

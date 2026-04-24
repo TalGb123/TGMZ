@@ -1,6 +1,7 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import CategoryList from "./category-list";
+import Questionnaire from "./questionnaire";
 import { ServerContext } from "../../App";      
 import "../css/spec-builder.css"; 
 
@@ -27,7 +28,9 @@ const SpecBuilder = () => {
       const [searchId, setSearchId] = useState("");
       const [msg, setMsg] = useState("");
 
-      React.useEffect(() => {
+      const [isQuestionnaireActive, setIsQuestionnaireActive] = useState(false);
+
+      useEffect(() => {
       const editId = location.state?.editBuildId;
       if (!editId) return;
 
@@ -122,6 +125,21 @@ const SpecBuilder = () => {
                                     onChange={(e) => setSearchId(e.target.value)}
                               />
                               <button className="search-btn" onClick={handleSearch}>Load</button>
+                        </div>
+
+                        <div className="products-container">
+                              {/* Button to Trigger the "Modal" */}
+                              <button 
+                                    className="questionnaire-btn" 
+                                    onClick={() => setIsQuestionnaireActive(true)}
+                              >
+                                    Open Questionnaire
+                              </button>
+
+                              {/* Render the separate component and pass the close function */}
+                              {isQuestionnaireActive && (
+                                    <Questionnaire onClose={() => setIsQuestionnaireActive(false)} />
+                              )}
                         </div>
                   </div>
 

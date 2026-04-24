@@ -95,7 +95,7 @@ const FILTERS = {
     ],
 };
 
-const CategoryList = ({ category, onSelect, selections = {} }) => {
+const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" }) => {
     const { server } = useContext(ServerContext);
     const [parts, setParts] = useState([]);
 
@@ -220,151 +220,160 @@ const CategoryList = ({ category, onSelect, selections = {} }) => {
                 </div>
                 
                 <div className="table-wrapper">
-                <table className="parts-table">
-                    <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Part Name</th>
-                        <th>Price</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                </table>
-                <div className="parts-scroll">
-                        <table className="parts-table">
-                            <tbody>
+                
+                    <div className="parts-scroll">
+                        {viewMode === "grid" ? (
+                            // --- STORE GRID (CUBES) VIEW ---
+                            <div className="store-grid">
                                 {processedParts.length > 0 ? (
-                                processedParts.map((part, index) => {
-                                    
-                                    // Determine styling based on the status
-                                    let bgColor = "transparent";
-                                    let rowOpacity = 1;
-                                    let icon = null;
-
-                                    if (!part.isCompatible) {
-                                        // Hard Error (Red)
-                                        bgColor = "rgba(255, 0, 0, 0.05)";
-                                        rowOpacity = 0.5;
-                                        icon = "❌";
-                                    } else if (part.isWarning) {
-                                        // Soft Warning (Yellow)
-                                        bgColor = "rgba(255, 165, 0, 0.15)";
-                                        rowOpacity = 0.85; // Less transparent than red
-                                        icon = "⚠️";
-                                    }
-
-                                    return (
-                                        <tr 
-                                            key={part._id || index} 
-                                            style={{ opacity: rowOpacity, backgroundColor: bgColor }}
-                                        >
-                                        <td><img src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} alt={part.name} className="part-image" /></td>
-                                        
-                                        <td style={{ fontWeight: '500' }}>
-                                            {part.name}
-                                            {(icon) && (
-                                                <span 
-                                                    title={part.reason} 
-                                                    style={{ cursor: "help", marginLeft: "8px", fontSize: "1.2em" }}
-                                                >
-                                                    {icon}
-                                                </span>
-                                            )}
-                                        </td>
-                                        
-                                        <td className="part-price-cell">${part.price}</td>
-                                        <td style={{ textAlign: "right" }}>
-                                            <button onClick={() => onSelect(part)} className="add-btn">Add</button>
-                                        </td>
-                                        </tr>
-                                    );
-                                })
+                                    processedParts.map((part, index) => (
+                                        <div key={part._id || index} className="store-card">
+                                            <img 
+                                                src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} 
+                                                alt={part.name} 
+                                                className="store-card-img" 
+                                            />
+                                            <div className="store-card-title">{part.name}</div>
+                                            <div className="store-card-price">${part.price}</div>
+                                            <button onClick={() => onSelect(part)} className="store-card-btn">
+                                                Add to Cart
+                                            </button>
+                                        </div>
+                                    ))
                                 ) : (
-                                <tr><td colSpan={4} className="no-parts">No parts found for {category}.</td></tr>
+                                    <div className="no-parts">No parts found for {category}.</div>
                                 )}
-                            </tbody>
-                        </table>
-                    </div>
-            </div>
-        </div>
-
-        {filterDefs.length > 0 && (
-            <div className="filters-panel">
-                {/* ... (Filters sidebar unchanged) ... */}
-                <h4>Filters</h4>
-                <div className="filters-scrollable">
-                    {filterDefs.map(f =>
-                        f.type === "range" && f.key === "price" ? (
-                            <div key="price" className="filter-row">
-                                <label>{f.label || "Price"}</label>
-                                <div className="price-range">
-                                    <input
-                                        type="number"
-                                        placeholder="Min"
-                                        value={advFilters.minPrice}
-                                        onChange={e => setAdvFilters(prev => ({ ...prev, minPrice: e.target.value }))}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Max"
-                                        value={advFilters.maxPrice}
-                                        onChange={e => setAdvFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
-                                    />
-                                </div>
-                            </div>
-                        ) : f.type === "range" ? (
-                            <div key={f.key} className="filter-row">
-                                <label>{f.label || f.key}</label>
-                                <div className="price-range">
-                                    <input
-                                        type="number"
-                                        placeholder="Min"
-                                        value={advFilters.values[`${f.key}Min`] || ""}
-                                        onChange={e => setAdvFilters(prev => ({
-                                            ...prev,
-                                            values: { ...prev.values, [`${f.key}Min`]: e.target.value }
-                                        }))}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Max"
-                                        value={advFilters.values[`${f.key}Max`] || ""}
-                                        onChange={e => setAdvFilters(prev => ({
-                                            ...prev,
-                                            values: { ...prev.values, [`${f.key}Max`]: e.target.value }
-                                        }))}
-                                    />
-                                </div>
                             </div>
                         ) : (
-                            <div key={f.key} className="filter-row">
-                            <label>{f.label || f.key}</label>
-                            <select
-                                value={advFilters.values[f.key] || ""}
-                                onChange={e =>
-                                setAdvFilters(prev => ({
-                                    ...prev,
-                                    values: { ...prev.values, [f.key]: e.target.value }
-                                }))
-                                }
-                            >
-                                <option value="">All</option>
-                                {(globalOptions[f.key] || []).map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                                </select>
-                            </div>
-                        )
-                    )}
+                            // --- SPEC BUILDER (TABLE) VIEW ---
+                            <table className="parts-table">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Part Name</th>
+                                        <th>Price</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {processedParts.length > 0 ? (
+                                    processedParts.map((part, index) => {
+                                        let bgColor = "transparent";
+                                        let rowOpacity = 1;
+                                        let icon = null;
+
+                                        if (!part.isCompatible) {
+                                            bgColor = "rgba(255, 0, 0, 0.05)";
+                                            rowOpacity = 0.5;
+                                            icon = "❌";
+                                        } 
+                                        else if (part.isWarning) {
+                                            bgColor = "rgba(255, 165, 0, 0.15)";
+                                            rowOpacity = 0.85;
+                                            icon = "⚠️";
+                                        }
+
+                                        return (
+                                            <tr key={part._id || index} style={{ opacity: rowOpacity, backgroundColor: bgColor }}>
+                                                <td><img src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} alt={part.name} className="part-image" /></td>
+                                                <td style={{ fontWeight: '500' }}>
+                                                    {part.name}
+                                                    {icon && <span title={part.reason} style={{ cursor: "help", marginLeft: "8px", fontSize: "1.2em" }}>{icon}</span>}
+                                                </td>
+                                                <td className="part-price-cell">${part.price}</td>
+                                                <td style={{ textAlign: "right" }}>
+                                                    <button onClick={() => onSelect(part)} className="add-btn">Add</button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                    ) : (
+                                    <tr><td colSpan={4} className="no-parts">No parts found for {category}.</td></tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
                 </div>
-                <button
-                    type="button"
-                    className="clear-filters-btn"
-                    onClick={() => setAdvFilters({ minPrice: "", maxPrice: "", values: {} })}
-                >
-                    Clear filters
-                </button>
             </div>
+
+            {filterDefs.length > 0 && (
+                <div className="filters-panel">
+                    {/* ... (Filters sidebar unchanged) ... */}
+                    <h4>Filters</h4>
+                    <div className="filters-scrollable">
+                        {filterDefs.map(f =>
+                            f.type === "range" && f.key === "price" ? (
+                                <div key="price" className="filter-row">
+                                    <label>{f.label || "Price"}</label>
+                                    <div className="price-range">
+                                        <input
+                                            type="number"
+                                            placeholder="Min"
+                                            value={advFilters.minPrice}
+                                            onChange={e => setAdvFilters(prev => ({ ...prev, minPrice: e.target.value }))}
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Max"
+                                            value={advFilters.maxPrice}
+                                            onChange={e => setAdvFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
+                                        />
+                                    </div>
+                                </div>
+                            ) : f.type === "range" ? (
+                                <div key={f.key} className="filter-row">
+                                    <label>{f.label || f.key}</label>
+                                    <div className="price-range">
+                                        <input
+                                            type="number"
+                                            placeholder="Min"
+                                            value={advFilters.values[`${f.key}Min`] || ""}
+                                            onChange={e => setAdvFilters(prev => ({
+                                                ...prev,
+                                                values: { ...prev.values, [`${f.key}Min`]: e.target.value }
+                                            }))}
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Max"
+                                            value={advFilters.values[`${f.key}Max`] || ""}
+                                            onChange={e => setAdvFilters(prev => ({
+                                                ...prev,
+                                                values: { ...prev.values, [`${f.key}Max`]: e.target.value }
+                                            }))}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div key={f.key} className="filter-row">
+                                <label>{f.label || f.key}</label>
+                                <select
+                                    value={advFilters.values[f.key] || ""}
+                                    onChange={e =>
+                                    setAdvFilters(prev => ({
+                                        ...prev,
+                                        values: { ...prev.values, [f.key]: e.target.value }
+                                    }))
+                                    }
+                                >
+                                    <option value="">All</option>
+                                    {(globalOptions[f.key] || []).map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                    </select>
+                                </div>
+                            )
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        className="clear-filters-btn"
+                        onClick={() => setAdvFilters({ minPrice: "", maxPrice: "", values: {} })}
+                    >
+                        Clear filters
+                    </button>
+                </div>
             )}
         </div>
     );

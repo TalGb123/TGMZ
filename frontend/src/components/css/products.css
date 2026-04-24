@@ -1,0 +1,135 @@
+/* ---- Fix Category Layout Height for the Full Page ---- */
+.products-page-container .category-list-layout {
+    /* Instead of the hardcoded 600px, stretch it dynamically down the screen */
+    height: calc(100vh - 160px); 
+    min-height: 500px;
+}
+
+.products-page-container .parts-scroll {
+    /* Gives the grid a bit more room to breathe on the right near the scrollbar */
+    padding: 20px;
+    color: var(--text-primary);
+}
+
+
+/* ---- Store Grid (Dynamic Cubes) Styles ---- */
+.store-grid {
+    display: grid;
+    /* 260px minimum width beautifully limits it to 4-5 items on a 27" 1080p/1440p screen */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px; 
+    padding: 10px 0;
+}
+
+.store-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+.store-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.store-card-img {
+    width: 100%;
+    /* Restored slightly bigger image size so they look good on big monitors */
+    height: 160px; 
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.store-card-title {
+    font-size: 0.95rem; 
+    font-weight: 600;
+    flex-grow: 1; /* Pushes the price/button naturally to the bottom */
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Still limits to 2 lines for perfect alignment */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+.store-card-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    margin-bottom: 15px;
+}
+
+.store-card-btn {
+    width: 100%;
+    padding: 10px; 
+    font-size: 1rem;
+    background-color: var(--btn-bg);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.store-card-btn:hover {
+    background-color: var(--btn-hover);
+}
+
+.category-bubbles-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+    max-width: 1100px;
+    margin: 40px auto;
+}
+
+.category-bubble {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background-color: var(--bg-secondary);
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.category-bubble:hover {
+    border-color: var(--accent-blue);
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    color: var(--accent-blue);
+}
+
+.back-btn {
+    padding: 8px 16px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.back-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}

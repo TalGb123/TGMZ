@@ -190,3 +190,27 @@ input:focus, select:focus, textarea:focus {
 input::placeholder {
   color: var(--text-secondary);
 }
+
+.dropdown-container { position: relative; }
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  min-width: 150px;
+  padding: 10px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+.dropdown-container:hover .dropdown-menu { display: flex; flex-direction: column; }
+.dropdown-menu a {
+  padding: 10px 16px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background 0.2s;
+  display: block;
+}
+.dropdown-menu a:hover { background-color: var(--accent-blue); color: white; }

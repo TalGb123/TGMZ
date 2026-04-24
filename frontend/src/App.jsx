@@ -1,4 +1,4 @@
-import { useState, createContext } from 'react'
+import { useState, useEffect, createContext } from 'react'
 import './index.css'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Login from './components/jsx/login.jsx'
@@ -6,13 +6,26 @@ import SpecBuilder from './components/jsx/spec-builder.jsx'
 import Register from './components/jsx/register.jsx'
 import axios from 'axios'
 import BuildSummary from './components/jsx/summary.jsx'
+import Profile from './components/jsx/profile.jsx'
+import Products from './components/jsx/products.jsx'
 
 export const ServerContext = createContext()
 
 function App() {
   const navigate = useNavigate()
 
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('tgmz_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  }); 
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('tgmz_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('tgmz_user');
+    }
+  }, [user]);
 
   const [theme, setTheme] = useState('light')
 
@@ -38,7 +51,19 @@ function App() {
           <ul className="nav-menu">
             <li><Link to="/">Home</Link></li>
             <li><Link to="/spec-builder">Build PC</Link></li>
-            <li><Link to="/products">Products</Link></li>
+            <li className="dropdown-container">
+              <Link to="/products" className="dropdown-trigger">Products ▾</Link>
+              <div className="dropdown-menu">
+                <Link to="/products?category=CPU">CPU</Link>
+                <Link to="/products?category=CPUCooler">CPU Cooler</Link>
+                <Link to="/products?category=Motherboard">Motherboard</Link>
+                <Link to="/products?category=Memory">RAM</Link>
+                <Link to="/products?category=Storage">Storage</Link>
+                <Link to="/products?category=VideoCard">GPU</Link>
+                <Link to="/products?category=PowerSupply">Power Supply</Link>
+                <Link to="/products?category=Case">Case</Link>
+              </div>
+            </li>
             <li><Link to="/about">About</Link></li>
           </ul>
           
@@ -52,6 +77,9 @@ function App() {
                     <span style={{ fontWeight: 'bold' }}>Hello, {user.name}</span>
                     <button onClick={handleLogout} className="nav-btn" style={{backgroundColor: 'red'}}>
                         Logout
+                    </button>
+                    <button onClick={() => navigate('/profile')} className="nav-btn">
+                        Profile
                     </button>
                 </div>
             ) : (
@@ -70,7 +98,9 @@ function App() {
             <Route path="/login" element={<Login navigate={navigate} />} />
             <Route path="/register" element={<Register navigate={navigate} />} />
             <Route path="/spec-builder" element={<SpecBuilder navigate={navigate} />} />
-            <Route path="/build/:id" element={<BuildSummary />} />
+            <Route path="/build/:id" element={<BuildSummary navigate={navigate} />} />
+            <Route path="/profile" element={<Profile navigate={navigate} />} />
+            <Route path="/products" element={<Products navigate={navigate} />} />
           </Routes>
         </main>
       </ServerContext.Provider>
