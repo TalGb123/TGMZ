@@ -66,7 +66,7 @@ const Login = () => {
     }
 
     return (
-        <div className="login-container">
+        <form className="login-container" onSubmit={(e) => { e.preventDefault(); LoginHandler(); }}>
             <h1>Page Login</h1>
             
             {/* Identifier Input (ID or Email) */}
@@ -99,20 +99,21 @@ const Login = () => {
             )}
 
             <button 
+                type="submit"
                 className="login-btn"
-                onClick={LoginHandler} 
                 disabled={loading}
             >
                 {loading ? 'Checking...' : 'Login'}
             </button>
 
             <button 
+                type="button"
                 className="secondary-btn" 
                 onClick={() => navigate('/register', { replace: true })}
             >
                 Don't have an account? Register
             </button>
-        </div>
+        </form>
     );
 }
 export default Login

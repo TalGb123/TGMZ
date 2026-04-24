@@ -3,11 +3,12 @@ import './index.css'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Login from './components/jsx/login.jsx'
 import SpecBuilder from './components/jsx/spec-builder.jsx'
-import Register from './components/jsx/register.jsx'
+import Register from './components/jsx/Register.jsx'
 import axios from 'axios'
 import BuildSummary from './components/jsx/summary.jsx'
 import Profile from './components/jsx/profile.jsx'
 import Products from './components/jsx/products.jsx'
+import Inventory from './components/jsx/inventory.jsx'
 
 export const ServerContext = createContext()
 
@@ -64,6 +65,9 @@ function App() {
                 <Link to="/products?category=Case">Case</Link>
               </div>
             </li>
+            {user?.isAdmin && (
+              <li><Link to="/inventory">Inventory</Link></li>
+            )}
             <li><Link to="/about">About</Link></li>
           </ul>
           
@@ -100,8 +104,7 @@ function App() {
             <Route path="/spec-builder" element={<SpecBuilder navigate={navigate} />} />
             <Route path="/build/:id" element={<BuildSummary navigate={navigate} />} />
             <Route path="/profile" element={<Profile navigate={navigate} />} />
-            <Route path="/products" element={<Products navigate={navigate} />} />
-          </Routes>
+            <Route path="/products" element={<Products navigate={navigate} />} />            <Route path="/inventory" element={<Inventory navigate={navigate} />} />          </Routes>
         </main>
       </ServerContext.Provider>
     </div>

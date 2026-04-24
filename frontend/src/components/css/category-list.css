@@ -91,7 +91,9 @@
 .category-list-layout {
   display: flex;
   gap: 16px;
-  height: 600px;
+  height: 60vh;
+  min-height: 400px;
+  max-height: 800px;
   overflow: hidden;
 }
 
@@ -108,11 +110,13 @@
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  width: 100%;
 }
 
 .parts-scroll {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .filters-panel {

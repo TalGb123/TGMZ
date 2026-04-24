@@ -3,6 +3,73 @@ import { Product } from '../models/productModel.js';
 
 const router = express.Router();
 
+// Get inventory lazy loaded
+router.get('/inventory', async (req, res) => {
+    try {
+        const { category, search, page = 1, limit = 20 } = req.query;
+        let filter = {};
+        
+        if (category) {
+            filter.category = category;
+        }
+        
+        if (search) {
+            // Search by name
+            filter.name = { $regex: search, $options: 'i' };
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const products = await Product.find(filter)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .lean();
+
+        const totalItems = await Product.countDocuments(filter);
+        const totalPages = Math.ceil(totalItems / limit);
+
+        res.json({
+            products,
+            currentPage: parseInt(page),
+            totalPages,
+            totalItems
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Create new product
+router.post('/', async (req, res) => {
+    try {
+        const newProduct = await Product.create(req.body);
+        res.status(201).json(newProduct);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Update product
+router.put('/:id', async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updatedProduct) return res.status(404).json({ message: 'Product not found' });
+        res.json(updatedProduct);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Delete product
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+        if (!deletedProduct) return res.status(404).json({ message: 'Product not found' });
+        res.json({ message: 'Product deleted' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 router.get('/', async (req, res) => {
     try {
         const products = await Product.find({});
@@ -56,8 +123,8 @@ router.get('/category/:type', async (req, res) => {
         else if (q.sortBy === 'name-desc') sortObj = { name: -1 };
 
         const products = await Product.find(filter)
-                                      .sort(sortObj)
-                                      .lean(); 
+            .sort(sortObj)
+            .lean(); 
         res.json(products);
     } 
     catch (error) {

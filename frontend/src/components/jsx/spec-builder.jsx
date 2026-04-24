@@ -31,6 +31,20 @@ const SpecBuilder = () => {
       const [isQuestionnaireActive, setIsQuestionnaireActive] = useState(false);
 
       useEffect(() => {
+            const handleKeyDown = (e) => {
+                  if (e.key === "Escape") {
+                        if (isQuestionnaireActive) {
+                              setIsQuestionnaireActive(false);
+                        } else if (activeCategory) {
+                              setActiveCategory(null);
+                        }
+                  }
+            };
+            window.addEventListener("keydown", handleKeyDown);
+            return () => window.removeEventListener("keydown", handleKeyDown);
+      }, [isQuestionnaireActive, activeCategory]);
+
+      useEffect(() => {
       const editId = location.state?.editBuildId;
       if (!editId) return;
 

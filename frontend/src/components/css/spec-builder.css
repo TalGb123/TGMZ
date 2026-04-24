@@ -209,7 +209,7 @@
   width: 90%;
   max-width: 1000px;
   max-height: 85vh;
-  overflow: hidden;
+  overflow: hidden; /* we want children like category-list to handle scrolling! */
   display: flex;
   flex-direction: column;
 }

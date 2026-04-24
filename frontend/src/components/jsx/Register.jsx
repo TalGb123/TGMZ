@@ -118,7 +118,7 @@ const Register = ()=>{
         } 
     }
     return (
-        <div className="register-container">
+        <form className="register-container" onSubmit={(e) => { e.preventDefault(); RegisterHandler(); }}>
             <h1>Page Register</h1>
             
             {/* ID Input */}
@@ -185,10 +185,10 @@ const Register = ()=>{
                 </div>
             )}
 
-            <button onClick={RegisterHandler} disabled={loading}>
+            <button type="submit" disabled={loading}>
                 {loading ? "Processing..." : "Register"}
             </button>
-        </div>
+        </form>
     );
 }
 

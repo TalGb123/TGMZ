@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/questionnaire.css";
 
 const Questionnaire = ({ onClose }) => {
@@ -7,6 +7,16 @@ const Questionnaire = ({ onClose }) => {
     const [budget, setBudget] = useState("");
     const [needsWifi, setNeedsWifi] = useState(null); // null means nothing selected yet
     const [preferences, setPreferences] = useState([]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape" && onClose) {
+                onClose();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [onClose]);
 
     // Handlers for multi-select buttons
     const toggleUsage = (option) => {
