@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import { ServerContext } from "../../App";
-import partsData from "../../assets/parts.json"; 
 import "../css/category-list.css";
 import { checkCompatibility } from "../../utils/compatibility.js";
 

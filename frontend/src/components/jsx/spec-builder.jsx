@@ -17,7 +17,7 @@ const SpecBuilder = () => {
             { id: 3, name: "Motherboard", dbName: "Motherboard", schemaKey: "motherboard" },
             { id: 4, name: "RAM", dbName: "Memory", schemaKey: "ram" },
             { id: 5, name: "Storage", dbName: "Storage", schemaKey: "storage" },
-            { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "power_supply" },
+            { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "psu" },
             { id: 7, name: "GPU", dbName: "VideoCard", schemaKey: "gpu" },
             { id: 8, name: "Case", dbName: "Case", schemaKey: "case" }
       ];
