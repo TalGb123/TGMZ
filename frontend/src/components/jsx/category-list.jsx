@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import { ServerContext } from "../../App";
-import partsData from "../../assets/parts.json"; 
 import "../css/category-list.css";
 import { checkCompatibility } from "../../utils/compatibility.js";
 
@@ -43,55 +42,86 @@ const normalizePart = (p) => {
 
 const FILTERS = {
     CPU: [
+        { key: "brand", type: "select", label: "Brand"},
         { key: "price", type: "range", label: "Price" },
+        { key: "socket", type: "select", label: "Socket"},
+        { key: "supported_memory", type: "select", label: "Memory Supported"},
+        { key: "has_apu", type: "select", label: "Has APU"},
+        { key: "tdp", type: "range", label: "TDP (W)" },
         { key: "core_count", type: "select", label: "Core Count" },
         { key: "core_clock", type: "range", label: "Clock (GHz)" },
-        { key: "tdp", type: "range", label: "TDP (W)" },
+        { key: "boost_clock", type: "range", label: "Boost Clock (GHz)" },
     ],
     CPUCooler: [
         { key: "price", type: "range", label: "Price" },
-        { key: "rpmMin", type: "range", label: "RPM (min)" },
-        { key: "rpmMax", type: "range", label: "RPM (max)" },
-        { key: "noiseMin", type: "range", label: "Noise (min dB)" },
-        { key: "noiseMax", type: "range", label: "Noise (max dB)" },
+        { key: "brand", type: "select", label: "Brand"},
+        { key: "type", type: "select", label: "Type"},
+        { key: "radiator_size", type: "select", label: "Radiator Size (mm)"},
+        { key: "supported_sockets", type: "select", label: "Supported Sockets"},
+        { key: "max_tdp_cooling", type: "range", label: "TDP Rating (W)"},
+        { key: "color", type: "select", label: "Color"},
+        { key: "height", type: "range", label: "Height (mm)"},
+        { key: "noise_level", type: "range", label: "Noise (dB)" },
     ],
     Motherboard: [
         { key: "price", type: "range", label: "Price" },
+        { key: "brand", type: "select", label: "Brand"},
         { key: "socket", type: "select", label: "Socket" },
         { key: "form_factor", type: "select", label: "Form Factor" },
-        { key: "max_memory", type: "range", label: "Max Memory (GB)" },
+        { key: "memory_gen", type: "select", label: "Memory Generation" },
+        { key: "has_bluetooth_wifi", type: "select", label: "Has Bluetooth & Wifi" },
+        { key: "m2_slots", type: "select", label: "SSD NVME Slots" },
+        { key: "connections", type: "select", label: "Connections" }, // Reverted back to select
     ],
     Memory: [
         { key: "price", type: "range", label: "Price" },
+        { key: "brand", type: "select", label: "Brand"},
         { key: "ddrGen", type: "select", label: "DDR" },
         { key: "speedMain", type: "select", label: "Speed" },
         { key: "modulesLabel", type: "select", label: "Modules" },
-        { key: "price_per_gb", type: "range", label: "Price/GB" },
         { key: "cas_latency", type: "range", label: "CAS Latency" },
+        { key: "color", type: "select", label: "Color" },
     ],
     Storage: [
         { key: "price", type: "range", label: "Price" },
+        { key: "brand", type: "select", label: "Brand"},
         { key: "capacity", type: "select", label: "Capacity" },
         { key: "drive_type", type: "select", label: "Type" },
-        { key: "cache", type: "range", label: "Cache (MB)" },
+        { key: "form_factor", type: "select", label: "Form Factor" },
     ],
     PowerSupply: [
         { key: "price", type: "range", label: "Price" },
+        { key: "brand", type: "select", label: "Brand"},
         { key: "wattage", type: "range", label: "Wattage" },
         { key: "efficiency", type: "select", label: "Efficiency" },
+        { key: "type", type: "select", label: "Type" },
         { key: "modular", type: "select", label: "Modular" },
+        { key: "color", type: "select", label: "Color" },
     ],
     VideoCard: [
         { key: "price", type: "range", label: "Price" },
+        { key: "brand", type: "select", label: "Brand"},
         { key: "chipset", type: "select", label: "Chipset" },
         { key: "memory", type: "select", label: "Memory" },
+        { key: "tdp", type: "range", label: "TDP (W)" },
+        { key: "length", type: "range", label: "Length (mm)" },
+        { key: "color", type: "select", label: "Color" },
         { key: "core_clock", type: "range", label: "Core Clock (MHz)" },
+        { key: "boost_clock", type: "range", label: "Boost Clock (MHz)" },
+        { key: "slots_required", type: "range", label: "Slots required" },
+        { key: "recommended_psu_wattage", type: "range", label: "Recommended PSU Wattage (W)" },
     ],
     Case: [
         { key: "price", type: "range", label: "Price" },
+        { key: "brand", type: "select", label: "Brand"},
         { key: "type", type: "select", label: "Type" },
         { key: "color", type: "select", label: "Color" },
-        { key: "side_panel", type: "select", label: "Side Panel" },
+        { key: "supported_mobo_form_factors", type: "select", label: "Supported Motherboard Form Factors" },
+        { key: "max_gpu_length", type: "range", label: "GPU Length (mm)" },
+        { key: "max_cpu_cooler_height", type: "range", label: "CPU Cooler Height (mm)" },
+        { key: "psu_form_factor", type: "select", label: "PSU Form Factor" },
+        { key: "supported_radiators", type: "select", label: "Supported Radiator Sizes (mm)" },
+        { key: "sidepanel_material", type: "select", label: "Side Panel" },
     ],
 };
 
@@ -116,8 +146,53 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                 
                 const map = {};
                 filterDefs.forEach(f => {
-                    if (f.type === "select") {
-                        map[f.key] = Array.from(new Set(normalized.map(p => p[f.key]).filter(v => v !== null && v !== undefined)));
+                    // Force true/false options for specific boolean fields
+                    if (f.key === "has_apu" || f.key === "has_bluetooth_wifi") {
+                        map[f.key] = ["true", "false"];
+                    }
+                    else if (f.type === "select") {
+                        const valuesSet = new Set();
+                        
+                        normalized.forEach(p => {
+                            let val = p[f.key];
+                            if (val !== null && val !== undefined && val !== "") {
+                                if (Array.isArray(val)) {
+                                    val.forEach(v => valuesSet.add(v));
+                                } else if (typeof val === "string") {
+                                    if (val.toUpperCase() === "DDR4DDR5" || val.toUpperCase() === "DDR5DDR4") {
+                                        valuesSet.add("DDR4");
+                                        valuesSet.add("DDR5");
+                                    } else if (val.includes(",")) {
+                                        val.split(",").forEach(v => valuesSet.add(v.trim()));
+                                    } else {
+                                        valuesSet.add(val);
+                                    }
+                                } else if (typeof val === "boolean") {
+                                    valuesSet.add(val.toString());
+                                } else {
+                                    valuesSet.add(val);
+                                }
+                            }
+                        });
+                        map[f.key] = Array.from(valuesSet).sort();
+                    } 
+                    // Extract unique connection types, ignoring the numbers in front (e.g. "3 USB-C 3.2" -> "USB-C 3.2")
+                    else if (f.type === "connections_min") {
+                        const keysSet = new Set();
+                        normalized.forEach(p => {
+                            let val = p[f.key];
+                            if (Array.isArray(val)) {
+                                val.forEach(connString => {
+                                    // Split at the first space. e.g "3 USB-C 3.2" -> index 0 is "3", index 1 is "USB-C 3.2"
+                                    const firstSpaceIdx = connString.indexOf(' ');
+                                    if (firstSpaceIdx !== -1) {
+                                        const typeName = connString.slice(firstSpaceIdx + 1).trim();
+                                        keysSet.add(typeName);
+                                    }
+                                });
+                            }
+                        });
+                        map[f.key] = Array.from(keysSet).sort();
                     }
                 });
                 setGlobalOptions(map);
@@ -127,7 +202,7 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
             }
         };
         if (category) fetchInitialOptions();
-    }, [category, server]);
+    }, [category, server]); // filterDefs shouldn't be a dependency as it's computed outside
 
     useEffect(() => {
         let isCancelled = false;
@@ -345,22 +420,44 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                                         />
                                     </div>
                                 </div>
-                            ) : (
+                            ) : f.type === "connections_min" ? (
+                                /* THIS IS THE NEW RENDER BLOCK FOR CONNECTIONS */
                                 <div key={f.key} className="filter-row">
-                                <label>{f.label || f.key}</label>
-                                <select
-                                    value={advFilters.values[f.key] || ""}
-                                    onChange={e =>
-                                    setAdvFilters(prev => ({
-                                        ...prev,
-                                        values: { ...prev.values, [f.key]: e.target.value }
-                                    }))
-                                    }
-                                >
-                                    <option value="">All</option>
-                                    {(globalOptions[f.key] || []).map(opt => (
-                                        <option key={opt} value={opt}>{opt}</option>
+                                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>{f.label || "Connections (Min)"}</label>
+                                    {(globalOptions[f.key] || []).map(connType => (
+                                        <div key={connType} style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", fontSize: "0.9em", alignItems: "center" }}>
+                                            <span style={{ color: "#ccc", paddingRight: "10px" }}>{connType}</span>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                placeholder="0"
+                                                style={{ width: "50px", padding: "4px", backgroundColor: "#333", color: "white", border: "1px solid #444", borderRadius: "4px"}}
+                                                value={advFilters.values[`conn_${connType}`] || ""}
+                                                onChange={e => setAdvFilters(prev => ({
+                                                    ...prev,
+                                                    values: { ...prev.values, [`conn_${connType}`]: e.target.value }
+                                                }))}
+                                            />
+                                        </div>
                                     ))}
+                                </div>
+                            ) : (
+                                /* Standard select for everything else */
+                                <div key={f.key} className="filter-row">
+                                    <label>{f.label || f.key}</label>
+                                    <select
+                                        value={advFilters.values[f.key] || ""}
+                                        onChange={e =>
+                                            setAdvFilters(prev => ({
+                                                ...prev,
+                                                values: { ...prev.values, [f.key]: e.target.value }
+                                            }))
+                                        }
+                                    >
+                                        <option value="">All</option>
+                                        {(globalOptions[f.key] || []).map(opt => (
+                                            <option key={opt} value={opt}>{opt}</option>
+                                        ))}
                                     </select>
                                 </div>
                             )
