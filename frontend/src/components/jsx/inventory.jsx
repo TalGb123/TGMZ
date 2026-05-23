@@ -7,72 +7,73 @@ const CATEGORIES = ["CPU", "CPUCooler", "Motherboard", "Memory", "Storage", "Vid
 
 const CATEGORY_PROPS = {
   CPU: [
-    { name: "brand", type: "text", label: "Brand" },
-    { name: "socket", type: "text", label: "Socket", required: true },
-    { name: "supported_memory", type: "text", label: "Memory Supported (e.g. DDR4)" },
-    { name: "has_apu", type: "text", label: "Has APU" },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
+    { name: "socket", type: "datalist", dynamicKey: "sockets", label: "Socket", required: true },
+    { name: "supported_memory", type: "multi-select", dynamicKey: "memoryGens", options: ["DDR4", "DDR5"], label: "Memory Supported", required: true },
+    { name: "has_apu", type: "select", options: ["true", "false"], label: "Has APU" },
     { name: "tdp", type: "number", label: "TDP (W)" },
     { name: "core_count", type: "number", label: "Core Count", required: true },
     { name: "core_clock", type: "number", label: "Core Clock (GHz)", required: true, step: "0.1" },
     { name: "boost_clock", type: "number", label: "Boost Clock (GHz)", step: "0.1" },
   ],
   CPUCooler: [
-    { name: "brand", type: "text", label: "Brand" },
-    { name: "type", type: "text", label: "Type (e.g. Air, Liquid)" },
-    { name: "radiator_size", type: "number", label: "Radiator Size (mm)" },
-    { name: "supported_sockets", type: "text", label: "Supported Sockets (Comma separated)" },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
+    { name: "type", type: "select", options: ["Air", "Liquid"], label: "Type" },
+    { name: "radiator_size", type: "datalist", dynamicKey: "radiatorSizes", label: "Radiator Size (mm) (0 if Air)" },
+    { name: "supported_sockets", type: "multi-select", dynamicKey: "sockets", label: "Supported Sockets" },
     { name: "max_tdp_cooling", type: "number", label: "TDP Rating (W)" },
     { name: "height", type: "number", label: "Height (mm)" },
-    { name: "noise_level", type: "text", label: "Noise Level (dB)" },
+    { name: "noise_level", type: "number", label: "Noise Level (dB)", step: "0.1" },
   ],
   Motherboard: [
-    { name: "brand", type: "text", label: "Brand" },
-    { name: "socket", type: "text", label: "Socket", required: true },
-    { name: "form_factor", type: "text", label: "Form Factor", required: true },
-    { name: "memory_gen", type: "text", label: "Memory Gen (e.g. DDR5)" },
-    { name: "has_bluetooth_wifi", type: "text", label: "Has Bluetooth & WiFi (Yes/No)" },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
+    { name: "socket", type: "datalist", dynamicKey: "sockets", label: "Socket", required: true },
+    { name: "form_factor", type: "datalist", dynamicKey: "moboFormFactors", label: "Form Factor", required: true },
+    { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", label: "Memory Gen" },
+    { name: "has_bluetooth_wifi", type: "select", options: ["true", "false"], label: "Has Bluetooth & WiFi" },
     { name: "m2_slots", type: "number", label: "SSD NVMe Slots" },
     { name: "connections", type: "text", label: "Connections" },
+    { name: "vrm_tier", type: "number", label: "VRM Tier (1-5)", required: true }
   ],
   Memory: [
-    { name: "brand", type: "text", label: "Brand" },
-    { name: "speed", type: "text", label: "Speed (e.g. 3200,3600 for array)" },
-    { name: "modules", type: "text", label: "Modules (e.g. 2,8 for 2x8GB)" },
-    { name: "cas_latency", type: "number", label: "CAS Latency" },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
+    { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", label: "Memory Generation", required: true },
+    { name: "speed_mhz", type: "number", label: "Speed (MHz)", required: true },
+    { name: "cas_latency", type: "number", label: "CAS Latency", required: true },
+    { name: "modules", type: "datalist", options: ["2x8GB", "2x16GB", "2x32GB", "4x16GB"], label: "Modules (e.g. 2x16GB)", required: true },
   ],
   Storage: [
-    { name: "brand", type: "text", label: "Brand" },
-    { name: "capacity", type: "number", label: "Capacity", required: true },
-    { name: "drive_type", type: "text", label: "Drive Type" },
-    { name: "form_factor", type: "text", label: "Form Factor" },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
+    { name: "capacity", type: "number", label: "Capacity (GB)", required: true },
+    { name: "drive_type", type: "datalist", dynamicKey: "driveTypes", label: "Drive Type" },
+    { name: "form_factor", type: "datalist", dynamicKey: "storageFormFactors", label: "Form Factor" },
   ],
   PowerSupply: [
-    { name: "brand", type: "text", label: "Brand" },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
     { name: "wattage", type: "number", label: "Wattage (W)", required: true },
-    { name: "efficiency", type: "text", label: "Efficiency Rating" },
-    { name: "type", type: "text", label: "Type (e.g. ATX)" },
-    { name: "modular", type: "text", label: "Modular (Full/Semi/No)" },
+    { name: "efficiency", type: "select", options: ["80+ White", "80+ Bronze", "80+ Silver", "80+ Gold", "80+ Platinum", "80+ Titanium"], label: "Efficiency Rating" },
+    { name: "type", type: "select", options: ["ATX", "SFX"], label: "Type" },
+    { name: "modular", type: "select", options: ["Full", "Semi", "No"], label: "Modular" },
   ],
   VideoCard: [
-    { name: "brand", type: "text", label: "Brand" },
-    { name: "chipset", type: "text", label: "Chipset", required: true },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
+    { name: "chipset", type: "datalist", dynamicKey: "gpuChipsets", label: "Chipset", required: true },
     { name: "memory", type: "number", label: "Memory (GB)" },
     { name: "tdp", type: "number", label: "TDP (W)" },
     { name: "length", type: "number", label: "Length (mm)" },
     { name: "core_clock", type: "number", label: "Core Clock (MHz)" },
     { name: "boost_clock", type: "number", label: "Boost Clock (MHz)" },
-    { name: "slots_required", type: "number", label: "Slots Required" },
+    { name: "slots_required", type: "number", label: "Slots Required", step: "0.1" },
     { name: "recommended_psu_wattage", type: "number", label: "Recommended PSU Wattage (W)" },
   ],
   Case: [
-    { name: "brand", type: "text", label: "Brand" },
-    { name: "type", type: "text", label: "Type (e.g. ATX Mid Tower)" },
-    { name: "supported_mobo_form_factors", type: "text", label: "Supported Motherboard Form Factors" },
-    { name: "max_gpu_length", type: "number", label: "GPU Length (mm)" },
-    { name: "max_cpu_cooler_height", type: "number", label: "CPU Cooler Height (mm)" },
-    { name: "psu_form_factor", type: "text", label: "PSU Form Factor" },
-    { name: "supported_radiators", type: "text", label: "Supported Radiator Sizes (mm)" },
-    { name: "side_panel", type: "text", label: "Side Panel" },
+    { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
+    { name: "type", type: "datalist", dynamicKey: "moboFormFactors", label: "Type (e.g. Mid Tower)" },
+    { name: "max_gpu_length", type: "number", label: "GPU Length (mm)", required: true },
+    { name: "max_cpu_cooler_height", type: "number", label: "CPU Cooler Height (mm)", required: true },
+    { name: "psu_form_factor", type: "select", options: ["ATX", "SFX"], label: "PSU Form Factor", required: true },
+    { name: "supported_radiators", type: "multi-select", dynamicKey: "caseRadiators", options: [120, 240, 280, 360, 420], label: "Supported Radiators" },
+    { name: "sidepanel_material", type: "text", label: "Side Panel Material" },
   ]
 };
 
@@ -91,6 +92,17 @@ export default function Inventory() {
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
   const [modalCategory, setModalCategory] = useState("CPU");
+  const [dbOptions, setDbOptions] = useState({
+    brands: [],
+    sockets: [],
+    gpuChipsets: [],
+    cpuChipsets: [],
+    moboFormFactors: [],
+    memoryGens: [],
+    storageFormFactors: [],
+    driveTypes: [],
+    caseRadiators: []
+  });
 
   const closeModal = useCallback(() => {
     setShowModal(false);
@@ -113,6 +125,21 @@ export default function Inventory() {
       navigate("/");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const fetchDbOptions = async () => {
+      try {
+        const res = await server.get('/options/form-options');
+        setDbOptions(res.data);
+      } catch (err) {
+        console.error("Failed to load dynamic selector profiles:", err);
+      }
+    };
+
+    if (user?.isAdmin) {
+      fetchDbOptions();
+    }
+  }, [server, user]);
 
   const fetchProducts = async (pageNum, reset = false) => {
     try {
@@ -139,7 +166,7 @@ export default function Inventory() {
   useEffect(() => {
     setPage(1);
     fetchProducts(1, true);
-  }, [category]); // Fetch fresh when category changes
+  }, [category]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -158,8 +185,20 @@ export default function Inventory() {
   };
 
   const handleEdit = (item) => {
-    setEditingItem(item);
-    setFormData(item);
+    let normalizedItem = { ...item };
+
+    if (item.category === "Memory") {
+      if (Array.isArray(item.modules) && item.modules.length >= 2) {
+        normalizedItem.modules = `${item.modules[0]}x${item.modules[1]}GB`;
+      }
+      if (Array.isArray(item.speed)) {
+        normalizedItem.memory_gen = item.speed[0] || "";
+        normalizedItem.speed_mhz = item.speed[1] || "";
+        normalizedItem.cas_latency = item.speed[2] || "";
+      }
+    }
+    setEditingItem(normalizedItem);
+    setFormData(normalizedItem);
     setModalCategory(item.category || category || "CPU");
     setShowModal(true);
   };
@@ -181,14 +220,16 @@ export default function Inventory() {
     try {
       const payload = { ...formData, category: modalCategory };
       
-      // Basic split for array fields if they are typed as comma strings in the form
       if (modalCategory === "Memory") {
-        if (typeof payload.speed === 'string') {
-          payload.speed = payload.speed.split(',').map(s => Number(s.trim()));
-        }
-        if (typeof payload.modules === 'string') {
-          payload.modules = payload.modules.split(',').map(s => Number(s.trim()));
-        }
+        payload.speed = [
+          formData.memory_gen,
+          Number(formData.speed_mhz),
+          Number(formData.cas_latency)
+        ];
+      }
+
+      if (modalCategory === "Case" && Array.isArray(payload.supported_radiators)) {
+        payload.supported_radiators = payload.supported_radiators.map(Number).filter(n => !isNaN(n));
       }
 
       if (editingItem && editingItem._id) {
@@ -205,6 +246,23 @@ export default function Inventory() {
       console.error("Save failed:", err);
       alert("Failed to save item. Make sure required fields are present.");
     }
+  };
+
+  const handleMultiSelectChange = (name, value, isChecked) => {
+    setFormData(prev => {
+      let currentList = [];
+      if (Array.isArray(prev[name])) {
+        currentList = prev[name];
+      } else if (typeof prev[name] === 'string') {
+        currentList = prev[name].split(',').map(s => s.trim()).filter(Boolean);
+      }
+
+      if (isChecked) {
+        return { ...prev, [name]: [...new Set([...currentList, value])] };
+      } else {
+        return { ...prev, [name]: currentList.filter(item => item.toString() !== value.toString()) };
+      }
+    });
   };
 
   const handleInputChange = (e) => {
@@ -282,9 +340,9 @@ export default function Inventory() {
                   value={modalCategory} 
                   onChange={(e) => {
                     setModalCategory(e.target.value);
-                    if (!editingItem) setFormData({}); // clear forms when swiching category in add mode
+                    if (!editingItem) setFormData({});
                   }}
-                  disabled={!!editingItem} // changing category on existing discriminator schema document is risky
+                  disabled={!!editingItem}
                 >
                   {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
@@ -313,23 +371,77 @@ export default function Inventory() {
                 </select>
               </div>
 
-              {/* Dynamic properties based on category */}
               <hr style={{ margin: "20px 0", borderColor: "var(--border-color, #ccc)" }} />
               <h4 style={{ marginBottom: "15px" }}>{modalCategory} Specific Properties</h4>
               
-              {CATEGORY_PROPS[modalCategory]?.map((prop) => (
-                <div className="form-group" key={prop.name}>
-                  <label>{prop.label} {prop.required && "(Required)"}</label>
-                  <input 
-                    type={prop.type} 
-                    name={prop.name} 
-                    step={prop.step}
-                    value={formData[prop.name] || ""} 
-                    onChange={handleInputChange} 
-                    required={prop.required} 
-                  />
-                </div>
-              ))}
+              {CATEGORY_PROPS[modalCategory]?.map((prop) => {
+                let currentSelections = [];
+                if (prop.type === "multi-select") {
+                  if (Array.isArray(formData[prop.name])) {
+                    currentSelections = formData[prop.name].map(String);
+                  } else if (typeof formData[prop.name] === 'string') {
+                    currentSelections = formData[prop.name].split(',').map(s => s.trim()).filter(Boolean);
+                  }
+                }
+
+                let availableOptions = [];
+                if (prop.options) availableOptions = [...prop.options];
+                if (prop.dynamicKey && dbOptions[prop.dynamicKey]) {
+                  availableOptions = [...availableOptions, ...dbOptions[prop.dynamicKey]];
+                }
+                if (prop.type === "multi-select") {
+                  const combinedAsStrings = [...availableOptions, ...currentSelections].map(String);
+                  availableOptions = [...new Set(combinedAsStrings)]; 
+                }
+
+                return (
+                  <div className="form-group" key={prop.name}>
+                    <label>{prop.label} {prop.required && "(Required)"}</label>
+                    
+                    {/* ... (select and datalist blocks remain the same) ... */}
+
+                    {prop.type === "multi-select" ? (
+                      <div style={{ border: "1px solid var(--border-color, #ccc)", padding: "10px", borderRadius: "4px" }}>
+                        {/* Changed from Grid to Flex Wrap for tighter, cleaner boxes */}
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "10px", maxHeight: "150px", overflowY: "auto" }}>
+                          {availableOptions.map(opt => (
+                            <label key={opt} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.95em", backgroundColor: "rgba(0,0,0,0.1)", padding: "4px 8px", borderRadius: "4px" }}>
+                              <input
+                                type="checkbox"
+                                checked={currentSelections.includes(opt.toString())}
+                                onChange={(e) => handleMultiSelectChange(prop.name, opt.toString(), e.target.checked)}
+                              />
+                              {opt}
+                            </label>
+                          ))}
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Type custom & press Enter to add..."
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              if (e.target.value.trim()) {
+                                handleMultiSelectChange(prop.name, e.target.value.trim(), true);
+                                e.target.value = '';
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <input 
+                        type={prop.type} 
+                        name={prop.name} 
+                        step={prop.step}
+                        value={formData[prop.name] || ""} 
+                        onChange={handleInputChange} 
+                        required={prop.required} 
+                      />
+                    )}
+                  </div>
+                );
+              })}
 
               <div className="modal-actions">
                 <button type="submit" className="save-btn">Save</button>

@@ -41,14 +41,15 @@ const Motherboard = mongoose.models.Motherboard || Product.discriminator('Mother
   has_wifi_bluetooth: { type: Boolean, default: false },
   m2_slots: { type: Number },
   connections: { type: [String] },
-  color: { type: String }
+  color: { type: String },
+  vrm_tier: { type: Number, required: true, min: 1, max: 5 },
 }));
 
 const Memory = mongoose.models.Memory || Product.discriminator('Memory', new Schema({
   // e.g. ["DDR5", 5200, 40] -> gen, speed, CL
   speed: { type: [Schema.Types.Mixed], required: true }, 
-  // e.g. [2, 32] -> stick_amount, capacity_per_stick
-  modules: { type: [Number], required: true },
+  // e.g. "2X32" -> stick_amount, capacity_per_stick
+  modules: { type: String, required: true },
   color: { type: String }
 }));
 
@@ -72,7 +73,6 @@ const VideoCard = mongoose.models.VideoCard || Product.discriminator('VideoCard'
 
 const Case = mongoose.models.Case || Product.discriminator('Case', new Schema({
   type: { type: String, required: true },
-  supported_mobo_form_factors: { type: [String], required: true },
   max_gpu_length: { type: Number, required: true },
   max_cpu_cooler_height: { type: Number, required: true },
   psu_form_factor: { type: String, required: true },

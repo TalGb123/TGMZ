@@ -104,7 +104,9 @@ function App() {
             <Route path="/spec-builder" element={<SpecBuilder navigate={navigate} />} />
             <Route path="/build/:id" element={<BuildSummary navigate={navigate} />} />
             <Route path="/profile" element={<Profile navigate={navigate} />} />
-            <Route path="/products" element={<Products navigate={navigate} />} />            <Route path="/inventory" element={<Inventory navigate={navigate} />} />          </Routes>
+            <Route path="/products" element={<Products navigate={navigate} />} />            
+            <Route path="/inventory" element={<Inventory navigate={navigate} />} />          
+          </Routes>
         </main>
       </ServerContext.Provider>
     </div>
