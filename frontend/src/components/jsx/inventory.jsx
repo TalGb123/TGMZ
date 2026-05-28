@@ -30,9 +30,10 @@ const CATEGORY_PROPS = {
     { name: "socket", type: "datalist", dynamicKey: "sockets", label: "Socket", required: true },
     { name: "form_factor", type: "datalist", dynamicKey: "moboFormFactors", label: "Form Factor", required: true },
     { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", label: "Memory Gen" },
-    { name: "has_bluetooth_wifi", type: "select", options: ["true", "false"], label: "Has Bluetooth & WiFi" },
+    { name: "has_wifi_bluetooth", type: "select", options: ["true", "false"], label: "Has Bluetooth & WiFi" },
+    { name: "memory_slots", type: "number", label: "Memory Slots", required: true },
     { name: "m2_slots", type: "number", label: "SSD NVMe Slots" },
-    { name: "connections", type: "text", label: "Connections" },
+    { name: "connections", type: "connection-builder", label: "Rear I/O Connections" },
     { name: "vrm_tier", type: "number", label: "VRM Tier (1-5)", required: true }
   ],
   Memory: [
@@ -40,7 +41,8 @@ const CATEGORY_PROPS = {
     { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", label: "Memory Generation", required: true },
     { name: "speed_mhz", type: "number", label: "Speed (MHz)", required: true },
     { name: "cas_latency", type: "number", label: "CAS Latency", required: true },
-    { name: "modules", type: "datalist", options: ["2x8GB", "2x16GB", "2x32GB", "4x16GB"], label: "Modules (e.g. 2x16GB)", required: true },
+    { name: "module_sticks", type: "number", label: "Stick Amount (e.g. 2)", required: true },
+    { name: "module_capacity", type: "number", label: "Capacity Per Stick (GB)", required: true },
   ],
   Storage: [
     { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
@@ -69,6 +71,7 @@ const CATEGORY_PROPS = {
   Case: [
     { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
     { name: "type", type: "datalist", dynamicKey: "moboFormFactors", label: "Type (e.g. Mid Tower)" },
+    { name: "supported_mobo_form_factors", type: "multi-select", dynamicKey: "moboFormFactors", options: ["ATX", "Micro-ATX", "Mini-ITX", "E-ATX"], label: "Supported Motherboards", required: true },
     { name: "max_gpu_length", type: "number", label: "GPU Length (mm)", required: true },
     { name: "max_cpu_cooler_height", type: "number", label: "CPU Cooler Height (mm)", required: true },
     { name: "psu_form_factor", type: "select", options: ["ATX", "SFX"], label: "PSU Form Factor", required: true },
@@ -76,6 +79,25 @@ const CATEGORY_PROPS = {
     { name: "sidepanel_material", type: "text", label: "Side Panel Material" },
   ]
 };
+
+const COMMON_CONNECTIONS = [
+  "USB-A 2.0", 
+  "USB-A 3.2 Gen 1 (5Gbps)", 
+  "USB-A 3.2 Gen 2 (10Gbps)",
+  "USB-C 3.2 Gen 2 (10Gbps)", 
+  "USB-C 3.2 Gen 2x2 (20Gbps)", 
+  "Thunderbolt 4 / USB4",
+  "RJ45 1GbE LAN", 
+  "RJ45 2.5GbE LAN", 
+  "RJ45 10GbE LAN",
+  "Wi-Fi Antenna Ports", 
+  "HDMI", 
+  "DisplayPort",
+  "Audio Jacks (3.5mm)", 
+  "Optical S/PDIF Out",
+  "BIOS Flashback Button", 
+  "Clear CMOS Button"
+];
 
 export default function Inventory() {
   const { server, user } = useContext(ServerContext);
@@ -188,15 +210,18 @@ export default function Inventory() {
     let normalizedItem = { ...item };
 
     if (item.category === "Memory") {
-      if (Array.isArray(item.modules) && item.modules.length >= 2) {
-        normalizedItem.modules = `${item.modules[0]}x${item.modules[1]}GB`;
-      }
       if (Array.isArray(item.speed)) {
         normalizedItem.memory_gen = item.speed[0] || "";
         normalizedItem.speed_mhz = item.speed[1] || "";
         normalizedItem.cas_latency = item.speed[2] || "";
       }
+      
+      if (Array.isArray(item.modules) && item.modules.length >= 2) {
+        normalizedItem.module_sticks = item.modules[0];
+        normalizedItem.module_capacity = item.modules[1];
+      }
     }
+
     setEditingItem(normalizedItem);
     setFormData(normalizedItem);
     setModalCategory(item.category || category || "CPU");
@@ -208,7 +233,8 @@ export default function Inventory() {
       try {
         await server.delete(`/products/${id}`);
         setProducts(products.filter(p => p._id !== id));
-      } catch (err) {
+      } 
+      catch (err) {
         console.error(err);
         alert("Failed to delete item.");
       }
@@ -226,10 +252,22 @@ export default function Inventory() {
           Number(formData.speed_mhz),
           Number(formData.cas_latency)
         ];
+        
+        payload.modules = [
+          Number(formData.module_sticks), 
+          Number(formData.module_capacity)
+        ];
+
+        delete payload.module_sticks;
+        delete payload.module_capacity;
       }
 
       if (modalCategory === "Case" && Array.isArray(payload.supported_radiators)) {
         payload.supported_radiators = payload.supported_radiators.map(Number).filter(n => !isNaN(n));
+      }
+
+      if (modalCategory === "Storage" && payload.drive_type) {
+        payload.type = payload.drive_type;
       }
 
       if (editingItem && editingItem._id) {
@@ -242,9 +280,11 @@ export default function Inventory() {
         }
       }
       closeModal();
-    } catch (err) {
+    } 
+    catch (err) {
       console.error("Save failed:", err);
-      alert("Failed to save item. Make sure required fields are present.");
+      const backendError = err.response?.data?.message || "Make sure all required fields are present.";
+      alert(`Failed to save: ${backendError}`);
     }
   };
 
@@ -253,15 +293,44 @@ export default function Inventory() {
       let currentList = [];
       if (Array.isArray(prev[name])) {
         currentList = prev[name];
-      } else if (typeof prev[name] === 'string') {
+      } 
+      else if (typeof prev[name] === 'string') {
         currentList = prev[name].split(',').map(s => s.trim()).filter(Boolean);
       }
 
       if (isChecked) {
         return { ...prev, [name]: [...new Set([...currentList, value])] };
-      } else {
+      } 
+      else {
         return { ...prev, [name]: currentList.filter(item => item.toString() !== value.toString()) };
       }
+    });
+  };
+
+  const handleConnectionChange = (propName, type, count) => {
+    setFormData(prev => {
+        const currentArr = Array.isArray(prev[propName]) ? prev[propName] : [];
+        const currentObj = {};
+        
+        currentArr.forEach(c => {
+            const space = c.indexOf(' ');
+            if (space > 0 && !isNaN(c.slice(0, space).trim())) {
+              currentObj[c.slice(space + 1).trim()] = c.slice(0, space).trim();
+            } 
+            else {
+              currentObj[c.trim()] = "1";
+            }
+        });
+
+        if (!count || count === '0' || count === 0) {
+          delete currentObj[type];
+        } 
+        else {
+          currentObj[type] = count;
+        }
+
+        const newArr = Object.entries(currentObj).map(([k, v]) => `${v} ${k}`);
+        return { ...prev, [propName]: newArr };
     });
   };
 
@@ -398,11 +467,8 @@ export default function Inventory() {
                   <div className="form-group" key={prop.name}>
                     <label>{prop.label} {prop.required && "(Required)"}</label>
                     
-                    {/* ... (select and datalist blocks remain the same) ... */}
-
                     {prop.type === "multi-select" ? (
                       <div style={{ border: "1px solid var(--border-color, #ccc)", padding: "10px", borderRadius: "4px" }}>
-                        {/* Changed from Grid to Flex Wrap for tighter, cleaner boxes */}
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "10px", maxHeight: "150px", overflowY: "auto" }}>
                           {availableOptions.map(opt => (
                             <label key={opt} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.95em", backgroundColor: "rgba(0,0,0,0.1)", padding: "4px 8px", borderRadius: "4px" }}>
@@ -429,12 +495,75 @@ export default function Inventory() {
                           }}
                         />
                       </div>
+                    ) : prop.type === "connection-builder" ? (
+                      <div style={{ border: "1px solid var(--border-color, #ccc)", padding: "10px", borderRadius: "4px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", maxHeight: "300px", overflowY: "auto", marginBottom: "10px" }}>
+                          {(() => {
+                            const currentObj = {};
+                            if (Array.isArray(formData[prop.name])) {
+                              formData[prop.name].forEach(c => {
+                                const space = c.indexOf(' ');
+                                if (space > 0 && !isNaN(c.slice(0, space).trim())) {
+                                  currentObj[c.slice(space + 1).trim()] = c.slice(0, space).trim();
+                                } 
+                                else {
+                                  currentObj[c.trim()] = "1";
+                                }
+                              });
+                            }
+
+                            const allTypes = [...new Set([...COMMON_CONNECTIONS, ...Object.keys(currentObj)])];
+
+                            return allTypes.map(connType => (
+                              <div key={connType} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  value={currentObj[connType] || ""}
+                                  style={{ width: "60px", padding: "4px" }}
+                                  onChange={(e) => handleConnectionChange(prop.name, connType, e.target.value)}
+                                />
+                                <span style={{ fontSize: "0.85em" }}>{connType}</span>
+                              </div>
+                            ));
+                          })()}
+                        </div>
+                      </div>
+                    ) : prop.type === "select" ? (
+                      <select
+                        name={prop.name}
+                        value={formData[prop.name] !== undefined ? formData[prop.name].toString() : ""}
+                        onChange={(e) => {
+                          let val = e.target.value;
+                          if (val === "true") val = true;
+                          if (val === "false") val = false;
+                          handleInputChange({ target: { name: prop.name, value: val } });
+                        }}
+                        required={prop.required}
+                      >
+                        <option value="">Select...</option>
+                        {availableOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                    ) : prop.type === "datalist" ? (
+                      <>
+                        <input
+                          list={`${prop.name}-list`}
+                          name={prop.name}
+                          value={formData[prop.name] ?? ""}
+                          onChange={handleInputChange}
+                          required={prop.required}
+                        />
+                        <datalist id={`${prop.name}-list`}>
+                          {availableOptions.map(opt => <option key={opt} value={opt} />)}
+                        </datalist>
+                      </>
                     ) : (
                       <input 
                         type={prop.type} 
                         name={prop.name} 
                         step={prop.step}
-                        value={formData[prop.name] || ""} 
+                        value={formData[prop.name] ?? ""} 
                         onChange={handleInputChange} 
                         required={prop.required} 
                       />
