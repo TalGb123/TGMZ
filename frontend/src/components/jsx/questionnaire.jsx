@@ -1,12 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import "../css/questionnaire.css";
+import { buildFilter } from "../../utils/build-filter.js";
+import { ServerContext } from "../../App";
 
 const Questionnaire = ({ onClose }) => {
-    // State for all questions
+    const { server } = useContext(ServerContext);
+
     const [usage, setUsage] = useState([]);
     const [budget, setBudget] = useState("");
-    const [needsWifi, setNeedsWifi] = useState(null); // null means nothing selected yet
+    const [needsWifi, setNeedsWifi] = useState(null);
     const [preferences, setPreferences] = useState([]);
+
+    const [dbColors, setDbColors] = useState([]);   
+
+    useEffect(() => {
+        const fetchOptions = async () => {
+            try {
+                const res = await server.get('/options/form-options');
+                if (res.data && res.data.colors) {
+                    setDbColors(res.data.colors);
+                }
+            } catch (err) {
+                console.error("Failed to fetch distinct colors from DB", err);
+            }
+        };
+        fetchOptions();
+    }, [server]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -118,8 +137,32 @@ const Questionnaire = ({ onClose }) => {
                     
                     {/* Submit logic later */}
                     <div className="questionnaire-footer">
-                        <button className="submit-btn" onClick={() => console.log({ usage, budget, needsWifi, preferences })}>
-                            See Recommendations
+                        <button 
+                            className="submit-btn" 
+                            onClick={async () => {
+                                // 1. Translate the answers
+                                const rawAnswers = { usage, budget, needsWifi, preferences };
+                                const strictFilters = buildFilter(rawAnswers, dbColors);
+                                
+                                console.log("--- 1. TRANSLATED FILTERS ---", strictFilters);
+                                
+                                try {
+                                    // 2. Ask the database for all valid parts
+                                    const res = await server.post('/builds/generate', strictFilters);
+                                    
+                                    // 3. Verify the filters worked!
+                                    console.log("--- 2. PRE-FILTERED DATABASE PAYLOAD (Ready for Gemini) ---");
+                                    console.log(res.data);
+                                    
+                                    // (Step 4 will eventually be: send res.data + user prompt to Gemini API)
+                                    alert("Check your browser console to see the filtered hardware list!");
+                                    
+                                } catch (err) {
+                                    console.error("Failed to fetch candidates from DB:", err);
+                                }
+                            }}
+                        >
+                            Test Database Filters
                         </button>
                     </div>
 
