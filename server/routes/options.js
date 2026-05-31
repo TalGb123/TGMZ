@@ -9,7 +9,7 @@ router.get('/form-options', async (req, res) => {
         const [
             brands, sockets, gpuChipsets, cpuChipsets, moboFormFactors,
             memoryGens, storageFormFactors, driveTypes,
-            radiatorSizes, caseRadiators
+            radiatorSizes, caseRadiators, colors
         ] = await Promise.all([
             Product.distinct('brand'),
             Product.distinct('socket'),
@@ -20,7 +20,8 @@ router.get('/form-options', async (req, res) => {
             Storage.distinct('form_factor'),
             Storage.distinct('drive_type'),
             CPUCooler.distinct('radiator_size'),
-            Case.distinct('supported_radiators')
+            Case.distinct('supported_radiators'),
+            Product.distinct('color')
         ]);
 
         res.json({
@@ -33,7 +34,8 @@ router.get('/form-options', async (req, res) => {
             storageFormFactors: storageFormFactors.filter(Boolean).sort(),
             driveTypes: driveTypes.filter(Boolean).sort(),
             radiatorSizes: radiatorSizes.filter(Boolean).sort((a,b) => a-b),
-            caseRadiators: caseRadiators.filter(Boolean).sort((a,b) => a-b)
+            caseRadiators: caseRadiators.filter(Boolean).sort((a,b) => a-b),
+            colors: colors.filter(Boolean).sort()
         });
     } catch (error) {
         console.error("Error generating form options:", error);

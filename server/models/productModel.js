@@ -7,7 +7,7 @@ const productSchema = new Schema({
   name: { type: String, required: true, index: true },
   price: { type: Number, default: 999999 },
   brand: { type: String, required: true },
-  image: { type: String },
+  image: { type: String, default: null },
   inStock: { type: Boolean, default: true },
 }, productOptions);
 
@@ -26,20 +26,20 @@ const CPU = mongoose.models.CPU || Product.discriminator('CPU', new Schema({
 const CPUCooler = mongoose.models.CPUCooler || Product.discriminator('CPUCooler', new Schema({
   type: { type: String, required: true },
   supported_sockets: { type: [String], required: true },
-  height: { type: Number }, 
+  height: { type: Number, default: null }, 
   radiator_size: { type: Number, default: 0 }, 
-  noise_level: { type: Number },
+  noise_level: { type: Number, default: null },
   max_tdp_cooling: { type: Number, required: true },
-  color: { type: String }
+  color: { type: String, default: null }
 }));
 
 const Motherboard = mongoose.models.Motherboard || Product.discriminator('Motherboard', new Schema({
   socket: { type: String, required: true },
   form_factor: { type: String, required: true },
   memory_gen: { type: String, required: true }, 
-  memory_slots: { type: Number, required: true },
+  memory_slots: { type: Number, default: 2 },
   has_wifi_bluetooth: { type: Boolean, default: false },
-  m2_slots: { type: Number },
+  m2_slots: { type: Number, default: null },
   connections: { type: [String] },
   color: { type: String },
   vrm_tier: { type: Number, required: true, min: 1, max: 5 },
@@ -48,8 +48,8 @@ const Motherboard = mongoose.models.Motherboard || Product.discriminator('Mother
 const Memory = mongoose.models.Memory || Product.discriminator('Memory', new Schema({
   // e.g. ["DDR5", 5200, 40] -> gen, speed, CL
   speed: { type: [Schema.Types.Mixed], required: true }, 
-  // e.g. "2X32" -> stick_amount, capacity_per_stick
-  modules: { type: String, required: true },
+  // e.g. [2, 32] -> [stick_amount, capacity_per_stick]
+  modules: { type: [Number], required: true },
   color: { type: String }
 }));
 
@@ -86,7 +86,8 @@ const PowerSupply = mongoose.models.PowerSupply || Product.discriminator('PowerS
   efficiency: { type: String, default: null },
   wattage: { type: Number, required: true },
   modular: { type: String, required: true },
-  color: { type: String }
+  rating: { type: String, default: null },
+  color: { type: String },
 }));
 
 export {
