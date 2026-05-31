@@ -1,9 +1,10 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import "../css/questionnaire.css";
 import { buildFilter } from "../../utils/build-filter.js";
 import { ServerContext } from "../../App";
 
-const Questionnaire = ({ onClose }) => {
+const Questionnaire = ({ onClose, onBuildGenerated }) => {
     const { server } = useContext(ServerContext);
 
     const [usage, setUsage] = useState([]);
@@ -140,29 +141,26 @@ const Questionnaire = ({ onClose }) => {
                         <button 
                             className="submit-btn" 
                             onClick={async () => {
-                                // 1. Translate the answers
                                 const rawAnswers = { usage, budget, needsWifi, preferences };
                                 const strictFilters = buildFilter(rawAnswers, dbColors);
                                 
-                                console.log("--- 1. TRANSLATED FILTERS ---", strictFilters);
-                                
                                 try {
-                                    // 2. Ask the database for all valid parts
+                                    // 1. Fetch the generated build from the server
                                     const res = await server.post('/builds/generate', strictFilters);
                                     
-                                    // 3. Verify the filters worked!
-                                    console.log("--- 2. PRE-FILTERED DATABASE PAYLOAD (Ready for Gemini) ---");
-                                    console.log(res.data);
-                                    
-                                    // (Step 4 will eventually be: send res.data + user prompt to Gemini API)
-                                    alert("Check your browser console to see the filtered hardware list!");
+                                    // 2. Pass the data back to SpecBuilder to populate the UI
+                                    // (This will also close the modal because of the logic we wrote in the parent)
+                                    if (onBuildGenerated) {
+                                        onBuildGenerated(res.data);
+                                    }
                                     
                                 } catch (err) {
                                     console.error("Failed to fetch candidates from DB:", err);
+                                    alert("Failed to generate build. Check the console for details.");
                                 }
                             }}
                         >
-                            Test Database Filters
+                            Generate Build
                         </button>
                     </div>
 

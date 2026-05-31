@@ -71,6 +71,31 @@ const SpecBuilder = () => {
             setActiveCategory(null); 
       };
 
+      const handleGeneratedBuild = (generatedData) => {
+            // 1. Point directly to the nested object containing the parts
+            const parts = generatedData.selectedParts;
+            
+            // Safety check just in case the server ever returns an error format
+            if (!parts) {
+                  setMsg("❌ Error: No parts found in the generated build.");
+                  return;
+            }
+
+            const newSelections = {};
+            
+            // 2. Loop through our hardware list and look inside the 'parts' object
+            hwList.forEach(item => {
+                  if (parts[item.schemaKey]) {
+                        newSelections[item.id] = parts[item.schemaKey];
+                  }
+            });
+
+            // 3. Update the UI
+            setSelections(newSelections);
+            setMsg("✅ Auto-build loaded successfully!");
+            setIsQuestionnaireActive(false);
+      };
+
       const handleSave = async () => {
             if (Object.keys(selections).length === 0) {
                   setMsg("❌ Cannot save an empty build.");
@@ -152,7 +177,9 @@ const SpecBuilder = () => {
 
                               {/* Render the separate component and pass the close function */}
                               {isQuestionnaireActive && (
-                                    <Questionnaire onClose={() => setIsQuestionnaireActive(false)} />
+                                    <Questionnaire 
+                                          onClose={() => setIsQuestionnaireActive(false)}
+                                          onBuildGenerated={handleGeneratedBuild} />
                               )}
                         </div>
                   </div>
