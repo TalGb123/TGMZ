@@ -202,7 +202,7 @@ const SpecBuilder = () => {
                                           {selected ? (
                                                 <>
                                                 <div className="part-name">{selected.name}</div>
-                                                <div className="part-price">${selected.price}</div>
+                                                <div className="part-price">₪{selected.price}</div>
                                                 <div className="part-image"><img src={selected.image} alt={selected.name} /></div>
                                                 </>
                                           ) : (
@@ -229,7 +229,7 @@ const SpecBuilder = () => {
 
                   {/* TOTAL BAR */}
                   <div className="total-bar">
-                        Total: ${totalPrice}
+                        Total: ₪{totalPrice}
                   </div>
                   
                   {/* SAVE BUTTON AREA */}

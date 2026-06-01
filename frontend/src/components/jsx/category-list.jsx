@@ -309,7 +309,7 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                                                 className="store-card-img" 
                                             />
                                             <div className="store-card-title">{part.name}</div>
-                                            <div className="store-card-price">${part.price}</div>
+                                            <div className="store-card-price">₪{part.price}</div>
                                             <button onClick={() => onSelect(part)} className="store-card-btn">
                                                 Add to Cart
                                             </button>
@@ -355,7 +355,7 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                                                     {part.name}
                                                     {icon && <span title={part.reason} style={{ cursor: "help", marginLeft: "8px", fontSize: "1.2em" }}>{icon}</span>}
                                                 </td>
-                                                <td className="part-price-cell">${part.price}</td>
+                                                <td className="part-price-cell">₪{part.price}</td>
                                                 <td style={{ textAlign: "right" }}>
                                                     <button onClick={() => onSelect(part)} className="add-btn">Add</button>
                                                 </td>

@@ -382,7 +382,7 @@ export default function Inventory() {
             {products.map(product => (
               <tr key={product._id}>
                 <td>{product.name}</td>
-                <td>${product.price}</td>
+                <td>₪{product.price}</td>
                 <td>{product.inStock ? "Yes" : "No"}</td>
                 <td className="actions-cell">
                   <button onClick={() => handleEdit(product)} className="edit-btn">Edit</button>
