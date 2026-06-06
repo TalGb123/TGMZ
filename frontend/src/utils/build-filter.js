@@ -1,5 +1,5 @@
 export const buildFilter = (answers, dbColors) => {
-    const { usage = [], budget, needsWifi, preferences = [] } = answers;
+    const { usage = [], budget, needsWifi, preferences = [], gameTypes = [], resolution, quality, contentTypes = [], aiTasks = [], generalTask, storage, sizePreference } = answers;
 
     // 1. Base Requirements Object
     const requirements = {
@@ -7,9 +7,20 @@ export const buildFilter = (answers, dbColors) => {
         requireGPU: true,
         requireAPU: false,
         needsWifi: needsWifi === true,
-        allowedColors: [], // Empty means ALL colors are allowed
+        allowedColors: [],
         maxNoiseLevel: null,
-        wantsRGB: preferences.includes("RGB Needed")
+        wantsRGB: preferences.includes("RGB Needed"),
+        usage,
+        gameTypes,
+        resolution,
+        quality,
+        contentTypes,
+        aiTasks,
+        generalTask,
+        storagePreference: storage,
+        sizePreference,
+        minGpuVRAM: 0,
+        minCpuCores: 0
     };
 
     // 2. USAGE LOGIC
@@ -22,6 +33,8 @@ export const buildFilter = (answers, dbColors) => {
         if (usage.includes("Gaming")) {
             requirements.minGpuVRAM = Math.max(requirements.minGpuVRAM, 8); // At least 8GB for modern gaming
             requirements.minCpuCores = Math.max(requirements.minCpuCores, 6);
+            if (resolution === '4K') requirements.minGpuVRAM = Math.max(requirements.minGpuVRAM, 16);
+            if (resolution === '1440p') requirements.minGpuVRAM = Math.max(requirements.minGpuVRAM, 12);
         }
         if (usage.includes("Content Creation")) {
             requirements.minCpuCores = Math.max(requirements.minCpuCores, 8); // Needs multi-threading
@@ -29,6 +42,7 @@ export const buildFilter = (answers, dbColors) => {
         if (usage.includes("Training AI Models")) {
             requirements.minGpuVRAM = Math.max(requirements.minGpuVRAM, 12); // AI is incredibly VRAM hungry
             requirements.minCpuCores = Math.max(requirements.minCpuCores, 8);
+            if (aiTasks.includes("Large Language Models (LLMs)")) requirements.minGpuVRAM = Math.max(requirements.minGpuVRAM, 16);
         }
     }
 

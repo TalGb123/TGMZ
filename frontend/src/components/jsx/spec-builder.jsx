@@ -17,7 +17,7 @@ const SpecBuilder = () => {
             { id: 3, name: "Motherboard", dbName: "Motherboard", schemaKey: "motherboard" },
             { id: 4, name: "RAM", dbName: "Memory", schemaKey: "ram" },
             { id: 5, name: "Storage", dbName: "Storage", schemaKey: "storage" },
-            { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "psu" },
+            { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "power_supply" },
             { id: 7, name: "GPU", dbName: "VideoCard", schemaKey: "gpu" },
             { id: 8, name: "Case", dbName: "Case", schemaKey: "case" }
       ];
@@ -29,11 +29,15 @@ const SpecBuilder = () => {
       const [msg, setMsg] = useState("");
 
       const [isQuestionnaireActive, setIsQuestionnaireActive] = useState(false);
+      const [buildReasoning, setBuildReasoning] = useState("");
+      const [isReasoningModalOpen, setIsReasoningModalOpen] = useState(false);
 
       useEffect(() => {
             const handleKeyDown = (e) => {
                   if (e.key === "Escape") {
-                        if (isQuestionnaireActive) {
+                        if (isReasoningModalOpen) {
+                              setIsReasoningModalOpen(false);
+                        } else if (isQuestionnaireActive) {
                               setIsQuestionnaireActive(false);
                         } else if (activeCategory) {
                               setActiveCategory(null);
@@ -42,7 +46,7 @@ const SpecBuilder = () => {
             };
             window.addEventListener("keydown", handleKeyDown);
             return () => window.removeEventListener("keydown", handleKeyDown);
-      }, [isQuestionnaireActive, activeCategory]);
+      }, [isQuestionnaireActive, activeCategory, isReasoningModalOpen]);
 
       useEffect(() => {
       const editId = location.state?.editBuildId;
@@ -92,6 +96,7 @@ const SpecBuilder = () => {
 
             // 3. Update the UI
             setSelections(newSelections);
+            setBuildReasoning(generatedData.reasoning || "");
             setMsg("✅ Auto-build loaded successfully!");
             setIsQuestionnaireActive(false);
       };
@@ -237,9 +242,33 @@ const SpecBuilder = () => {
                         <button onClick={handleSave} className="save-btn">
                               💾 Save This Build
                         </button>
+                        {buildReasoning && (
+                              <button 
+                                    onClick={() => setIsReasoningModalOpen(true)} 
+                                    className="save-btn" 
+                                    style={{ marginLeft: '10px', backgroundColor: 'var(--accent-blue)', color: 'var(--bg-primary)' }}
+                              >
+                                    🤖 Show AI Reasoning
+                              </button>
+                        )}
                   </div>
 
-                  {/* Modal Overlay (Unchanged) */}
+                  {/* AI Reasoning Modal Overlay */}
+                  {isReasoningModalOpen && (
+                  <div className="modal-overlay">
+                        <div className="modal-content" style={{ maxWidth: '600px', padding: '20px' }}>
+                              <div className="modal-header">
+                                    <h3>🤖 AI Build Reasoning</h3>
+                                    <button className="close-btn" onClick={() => setIsReasoningModalOpen(false)}>Close</button>
+                              </div>
+                              <div style={{ marginTop: '20px', lineHeight: '1.6', color: 'var(--text-primary)', whiteSpace: 'pre-line' }}>
+                                    {buildReasoning}
+                              </div>
+                        </div>
+                  </div>
+                  )}
+
+                  {/* Component Modal Overlay (Unchanged) */}
                   {activeCategory && (
                   <div className="modal-overlay">
                         <div className="modal-content">
@@ -249,9 +278,9 @@ const SpecBuilder = () => {
                               </div>
                               
                               <CategoryList 
-                              category={hwList.find(c => c.id === activeCategory)?.dbName}
-                              onSelect={handleSelect} 
-                              selections={selections}
+                                    category={hwList.find(c => c.id === activeCategory)?.dbName}
+                                    onSelect={handleSelect} 
+                                    selections={selections}
                               />
                         </div>
                   </div>

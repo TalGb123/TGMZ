@@ -88,6 +88,7 @@ const PowerSupply = mongoose.models.PowerSupply || Product.discriminator('PowerS
   modular: { type: String, required: true },
   rating: { type: String, default: null },
   color: { type: String },
+  performance_tier: { type: String, required: true, maxlength: 3 }
 }));
 
 export {
