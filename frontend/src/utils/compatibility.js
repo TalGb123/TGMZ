@@ -8,8 +8,10 @@ const checkCpuGpuRelationship = (targetCpu, targetGpu, errors, warnings) => {
     }
 
     // 1. PERFORMANCE TIERING (BOTTLENECK)
-    const cpuScore = targetCpu.core_count * targetCpu.boost_clock;
-    const gpuScore = targetGpu.memory * (targetGpu.boost_clock / 1000);
+    const activeCpuClock = targetCpu.boost_clock || targetCpu.core_clock || 3.0; 
+    const activeGpuClock = targetGpu.boost_clock || targetGpu.core_clock || 1500; 
+    const cpuScore = targetCpu.core_count * activeCpuClock;
+    const gpuScore = targetGpu.memory * (activeGpuClock / 1000);
     const ratio = cpuScore / gpuScore;
 
     if (ratio < 0.45) {
