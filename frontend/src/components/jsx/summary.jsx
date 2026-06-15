@@ -5,11 +5,12 @@ import "../css/summary.css";
 
 const BuildSummary = () => {
     const { id } = useParams();
-    const { server } = useContext(ServerContext);
     const navigate = useNavigate();
 
     const [build, setBuild] = useState(null);
     const [error, setError] = useState("");
+
+    const { user, setUser, server } = useContext(ServerContext);
 
     const hwList = [
         { schemaKey: "cpu", name: "CPU" },
@@ -43,6 +44,27 @@ const BuildSummary = () => {
 
     const total = parts.reduce((sum, p) => sum + (p.price || 0), 0);
 
+    const handleSaveToProfile = async () => {
+        const buildName = prompt("Enter a name for this build:", `Build #${build.buildID}`);
+        if (!buildName) return; // User cancelled
+
+        try {
+            // Note: we use build._id (the ObjectId) for the reference
+            const response = await server.post(`/users/${user.id}/save-build`, {
+                buildRef: build._id,
+                buildName: buildName
+            });
+            
+            if(response.status === 200) {
+                alert("Build saved to your profile!");
+                setUser(response.data.user);
+            }
+        } catch (error) {
+            console.error("Failed to save build:", error);
+            alert(error.response?.data?.message || "Failed to save build.");
+        }
+    };
+
     return (
         <div className="summary-container">
             <h2>Build #{build.buildID}</h2>
@@ -70,6 +92,15 @@ const BuildSummary = () => {
 
             <div className="summary-actions">
                 <button onClick={() => navigate("/spec-builder", { state: { editBuildId: build.buildID } })}>Edit Build</button>
+                {/* NEW BUTTON */}
+                {user && (
+                    <button 
+                        onClick={handleSaveToProfile} 
+                        style={{ marginLeft: "10px", backgroundColor: "#28a745" }}
+                    >
+                        💾 Save to Profile
+                    </button>
+                )}
             </div>
         </div>
     );

@@ -31,7 +31,8 @@
         return res.status(400).json({ message: "Missing id or password" });
     }
         try {
-            const user = await User.findOne({ id: id });
+            // Added populate
+            const user = await User.findOne({ id: id }).populate('savedBuilds.buildRef');
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
@@ -47,7 +48,8 @@
 
     router.get('/:id', async (req, res) => {
         try {
-            const user = await User.findOne({ id: req.params.id });
+            // Added populate
+            const user = await User.findOne({ id: req.params.id }).populate('savedBuilds.buildRef');
             if (!user) return res.status(404).json({ message: "User not found" });
             res.status(200).json(user);
         } 
@@ -78,6 +80,63 @@
         } 
         catch (error) {
             res.status(500).json({ error: "Server error during an update operation" });
+        }
+    });
+
+    // Save a build to a user's profile
+    router.post('/:id/save-build', async (req, res) => {
+        const { buildRef, buildName } = req.body;
+        try {
+            const user = await User.findOne({ id: req.params.id });
+            if (!user) return res.status(404).json({ message: "User not found" });
+
+            // Check if build is already saved (optional)
+            const alreadySaved = user.savedBuilds.find(b => b.buildRef.toString() === buildRef);
+            if (alreadySaved) {
+                return res.status(400).json({ message: "Build already saved" });
+            }
+
+            user.savedBuilds.push({ buildRef, buildName });
+            await user.save();
+            await user.populate('savedBuilds.buildRef');
+            res.status(200).json({ message: "Build saved to profile", user });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Failed to save build" });
+        }
+    });
+
+    // Rename a saved build
+    router.patch('/:id/rename-build', async (req, res) => {
+        const { buildRef, newName } = req.body;
+        try {
+            const user = await User.findOneAndUpdate(
+                { id: req.params.id, "savedBuilds.buildRef": buildRef },
+                { $set: { "savedBuilds.$.buildName": newName } },
+                { new: true }
+            ).populate('savedBuilds.buildRef'); 
+
+            if (!user) return res.status(404).json({ message: "User or saved build not found" });
+            res.status(200).json({ message: "Build renamed", user });
+        } catch (error) {
+            res.status(500).json({ error: "Failed to rename build" });
+        }
+    });
+
+    // Remove a saved build
+    router.delete('/:id/remove-build/:buildRef', async (req, res) => {
+        try {
+            // Added .populate() to the end of the query
+            const user = await User.findOneAndUpdate(
+                { id: req.params.id },
+                { $pull: { savedBuilds: { buildRef: req.params.buildRef } } },
+                { new: true }
+            ).populate('savedBuilds.buildRef');
+
+            if (!user) return res.status(404).json({ message: "User not found" });
+            res.status(200).json({ message: "Build removed", user });
+        } catch (error) {
+            res.status(500).json({ error: "Failed to remove build" });
         }
     });
 

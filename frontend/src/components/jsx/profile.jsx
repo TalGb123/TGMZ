@@ -3,6 +3,104 @@ import { Link } from 'react-router-dom';
 import '../css/profile.css';
 import { ServerContext } from '../../App.jsx';
 
+const SavedBuildAccordion = ({ savedBuild, server, user, setUser }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState(savedBuild.buildName);
+    
+    // The populated build data from the backend
+    const buildData = savedBuild.buildRef;
+
+    const handleRename = async () => {
+        try {
+            const res = await server.patch(`/users/${user.id}/rename-build`, {
+                buildRef: buildData._id,
+                newName: editName
+            });
+            setUser(res.data.user); 
+            setIsEditing(false);
+        } catch (error) {
+            alert("Failed to rename build");
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm("Remove this build from your profile?")) return;
+        try {
+            const res = await server.delete(`/users/${user.id}/remove-build/${buildData._id}`);
+            setUser(res.data.user); 
+        } catch (error) {
+            alert("Failed to remove build");
+        }
+    };
+
+    return (
+        <div className="accordion-card">
+            <div className="accordion-header">
+                <div className="accordion-title-area">
+                    <button onClick={() => setIsOpen(!isOpen)} className="accordion-toggle-btn">
+                        {isOpen ? "▼" : "▶"}
+                    </button>
+                    
+                    {isEditing ? (
+                        <div style={{ display: "flex", gap: "5px" }}>
+                            <input 
+                                value={editName} 
+                                onChange={(e) => setEditName(e.target.value)} 
+                                style={{ padding: "4px", borderRadius: "4px", border: "1px solid #444", backgroundColor: "#333", color: "white" }} 
+                            />
+                            <button onClick={handleRename} className="accordion-btn btn-view">Save</button>
+                            <button onClick={() => setIsEditing(false)} className="accordion-btn btn-rename">Cancel</button>
+                        </div>
+                    ) : (
+                        <strong style={{ fontSize: "1.1rem" }}>{savedBuild.buildName}</strong>
+                    )}
+                </div>
+
+                <div className="accordion-actions">
+                    <Link to={`/build/${buildData.buildID}`}>
+                        <button className="accordion-btn btn-view">View/Load</button>
+                    </Link>
+                    {!isEditing && (
+                        <button onClick={() => setIsEditing(true)} className="accordion-btn btn-rename">Rename</button>
+                    )}
+                    <button onClick={handleDelete} className="accordion-btn btn-delete">Delete</button>
+                </div>
+            </div>
+
+            {/* EXPANDABLE CONTENT - NOW DYNAMIC */}
+            {isOpen && (
+                <div className="accordion-content">
+                    {/* Maps through only the parts that actually exist in this build */}
+                    {[
+                        { key: 'cpu', label: 'CPU' },
+                        { key: 'cpu_cooler', label: 'Cooler' },
+                        { key: 'motherboard', label: 'Motherboard' },
+                        { key: 'ram', label: 'RAM' },
+                        { key: 'storage', label: 'Storage' },
+                        { key: 'gpu', label: 'GPU' },
+                        { key: 'power_supply', label: 'PSU' },
+                        { key: 'case', label: 'Case' }
+                    ].map(hw => 
+                        buildData[hw.key] ? (
+                            <div key={hw.key}><strong>{hw.label}:</strong> {buildData[hw.key].name}</div>
+                        ) : null
+                    )}
+                    
+                    {/* NEW: Display the Shareable Build ID */}
+                    <div style={{ marginTop: "12px", color: "#7289da", fontWeight: "bold" }}>
+                        Build ID: #{buildData.buildID}
+                    </div>
+
+                    <div className="accordion-date" style={{ marginTop: "5px" }}>
+                        Saved on: {new Date(savedBuild.savedAt).toLocaleDateString()}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 export default function Profile() {
     const { user, setUser, server } = useContext(ServerContext);
     
@@ -86,7 +184,6 @@ export default function Profile() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setUserData(prev => ({ ...prev, [name]: value }));
-        // Clear specific error as user types
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
     };
 
@@ -184,15 +281,20 @@ export default function Profile() {
             
             <h3>My Saved Builds</h3>
             {userData.savedBuilds && userData.savedBuilds.length > 0 ? (
-                <ul style={{ listStyleType: "none", padding: 0 }}>
-                    {userData.savedBuilds.map((buildId, index) => (
-                        <li key={index} style={{ marginBottom: "10px" }}>
-                            <Link to={`/build/${buildId}`} style={{ color: "#7289da", textDecoration: "none" }}>
-                                📄 PC Build #{buildId}
-                            </Link>
-                        </li>
+                <div>
+                    {userData.savedBuilds.map((savedBuild, index) => (
+                        // Check if buildRef exists (in case a build was deleted globally)
+                        savedBuild.buildRef ? (
+                            <SavedBuildAccordion 
+                                key={index} 
+                                savedBuild={savedBuild} 
+                                server={server} 
+                                user={user} 
+                                setUser={setUser} 
+                            />
+                        ) : null
                     ))}
-                </ul>
+                </div>
             ) : (
                 <p style={{ color: "#aaa" }}>You haven't saved any builds yet.</p>
             )}
