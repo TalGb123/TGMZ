@@ -46,10 +46,9 @@ const BuildSummary = () => {
 
     const handleSaveToProfile = async () => {
         const buildName = prompt("Enter a name for this build:", `Build #${build.buildID}`);
-        if (!buildName) return; // User cancelled
+        if (!buildName) return;
 
         try {
-            // Note: we use build._id (the ObjectId) for the reference
             const response = await server.post(`/users/${user.id}/save-build`, {
                 buildRef: build._id,
                 buildName: buildName
@@ -92,7 +91,6 @@ const BuildSummary = () => {
 
             <div className="summary-actions">
                 <button onClick={() => navigate("/spec-builder", { state: { editBuildId: build.buildID } })}>Edit Build</button>
-                {/* NEW BUTTON */}
                 {user && (
                     <button 
                         onClick={handleSaveToProfile} 

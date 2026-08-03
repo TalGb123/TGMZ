@@ -76,25 +76,19 @@ const SpecBuilder = () => {
       };
 
       const handleGeneratedBuild = (generatedData) => {
-            // 1. Point directly to the nested object containing the parts
             const parts = generatedData.selectedParts;
             
-            // Safety check just in case the server ever returns an error format
             if (!parts) {
                   setMsg("❌ Error: No parts found in the generated build.");
                   return;
             }
 
             const newSelections = {};
-            
-            // 2. Loop through our hardware list and look inside the 'parts' object
             hwList.forEach(item => {
                   if (parts[item.schemaKey]) {
                         newSelections[item.id] = parts[item.schemaKey];
                   }
             });
-
-            // 3. Update the UI
             setSelections(newSelections);
             setBuildReasoning(generatedData.reasoning || "");
             setMsg("✅ Auto-build loaded successfully!");
@@ -144,7 +138,7 @@ const SpecBuilder = () => {
       const handleClear = (id) => {
             setSelections(prev => {
                   const newSelections = { ...prev };
-                  delete newSelections[id]; // Removes the key (e.g., id 1 for CPU)
+                  delete newSelections[id];
                   return newSelections;
             });
       };
@@ -154,7 +148,6 @@ const SpecBuilder = () => {
 
      return (
             <div className="spec-builder-container">
-                  {/* HEADER AREA: Title & Search */}
                   <div className="spec-header-row">
                         <h2>
                               PC Spec Builder 
@@ -172,7 +165,6 @@ const SpecBuilder = () => {
                         </div>
 
                         <div className="products-container">
-                              {/* Button to Trigger the "Modal" */}
                               <button 
                                     className="questionnaire-btn" 
                                     onClick={() => setIsQuestionnaireActive(true)}
@@ -180,7 +172,6 @@ const SpecBuilder = () => {
                                     Open Questionnaire
                               </button>
 
-                              {/* Render the separate component and pass the close function */}
                               {isQuestionnaireActive && (
                                     <Questionnaire 
                                           onClose={() => setIsQuestionnaireActive(false)}
@@ -189,14 +180,12 @@ const SpecBuilder = () => {
                         </div>
                   </div>
 
-                  {/* FEEDBACK MESSAGE */}
                   {msg && (
                         <div className={`feedback-msg ${msg.includes("✅") ? "success" : "error"}`}>
                               {msg}
                         </div>
                   )}
 
-                  {/* GRID AREA */}
                   <div className="spec-grid">
                   {hwList.map(item => {
                         const selected = selections[item.id];
@@ -232,12 +221,10 @@ const SpecBuilder = () => {
                   })}
                   </div>
 
-                  {/* TOTAL BAR */}
                   <div className="total-bar">
                         Total: ₪{totalPrice}
                   </div>
                   
-                  {/* SAVE BUTTON AREA */}
                   <div className="save-container">
                         <button onClick={handleSave} className="save-btn">
                               💾 Save This Build
@@ -253,7 +240,6 @@ const SpecBuilder = () => {
                         )}
                   </div>
 
-                  {/* AI Reasoning Modal Overlay */}
                   {isReasoningModalOpen && (
                   <div className="modal-overlay">
                         <div className="modal-content" style={{ maxWidth: '600px', padding: '20px' }}>
@@ -268,7 +254,6 @@ const SpecBuilder = () => {
                   </div>
                   )}
 
-                  {/* Component Modal Overlay (Unchanged) */}
                   {activeCategory && (
                   <div className="modal-overlay">
                         <div className="modal-content">

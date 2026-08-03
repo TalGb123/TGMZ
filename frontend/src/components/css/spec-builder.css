@@ -276,3 +276,15 @@
 .save-btn:active {
   transform: translateY(0);
 }
+
+.questionnaire-btn {
+  font-size: 1rem;
+  padding: 10px 20px;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}

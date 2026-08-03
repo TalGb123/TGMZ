@@ -1,7 +1,6 @@
 export const buildFilter = (answers, dbColors) => {
     const { usage = [], budget, needsWifi, preferences = [], gameTypes = [], resolution, quality, contentTypes = [], aiTasks = [], generalTask, storage, sizePreference } = answers;
 
-    // 1. Base Requirements Object
     const requirements = {
         budget: Number(budget) || 0,
         requireGPU: true,
@@ -23,7 +22,6 @@ export const buildFilter = (answers, dbColors) => {
         minCpuCores: 0
     };
 
-    // 2. USAGE LOGIC
     if (usage.length === 1 && usage.includes("General Use")) {
         requirements.requireGPU = false;
         requirements.requireAPU = true;
@@ -46,7 +44,6 @@ export const buildFilter = (answers, dbColors) => {
         }
     }
 
-    // 3. COLOR LOGIC (Expanded for real-world databases)
     const wantsWhite = preferences.includes("White PC Build");
     const wantsBlack = preferences.includes("Black PC Build");
 
@@ -65,7 +62,6 @@ export const buildFilter = (answers, dbColors) => {
         });
     }
 
-    // 4. ACOUSTIC LOGIC
     if (preferences.includes("Quiet PC")) {
         requirements.maxNoiseLevel = 28.5; 
     }

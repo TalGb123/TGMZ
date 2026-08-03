@@ -9,6 +9,7 @@ import BuildSummary from './components/jsx/summary.jsx'
 import Profile from './components/jsx/profile.jsx'
 import Products from './components/jsx/products.jsx'
 import Inventory from './components/jsx/inventory.jsx'
+import ProductDetail from './components/jsx/product-detail.jsx'
 
 export const ServerContext = createContext()
 
@@ -104,8 +105,10 @@ function App() {
             <Route path="/spec-builder" element={<SpecBuilder navigate={navigate} />} />
             <Route path="/build/:id" element={<BuildSummary navigate={navigate} />} />
             <Route path="/profile" element={<Profile navigate={navigate} />} />
-            <Route path="/products" element={<Products navigate={navigate} />} />            
-            <Route path="/inventory" element={<Inventory navigate={navigate} />} />          
+            <Route path="/products" element={<Products navigate={navigate} />} />
+            <Route path="/product/:id" element={<ProductDetail navigate={navigate} />} />            
+            <Route path="/inventory" element={<Inventory navigate={navigate} />} />    
+                  
           </Routes>
         </main>
       </ServerContext.Provider>

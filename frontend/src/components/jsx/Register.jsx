@@ -22,7 +22,6 @@ const Register = ()=>{
     const isValidIsraeliID = (id) => {
         let strId = String(id).trim();
         if (strId.length > 9 || strId.length < 5) return false;
-        // Pad with zeros if less than 9 digits
         strId = strId.padStart(9, '0'); 
         
         let sum = 0;
@@ -121,17 +120,14 @@ const Register = ()=>{
         <form className="register-container" onSubmit={(e) => { e.preventDefault(); RegisterHandler(); }}>
             <h1>Page Register</h1>
             
-            {/* ID Input */}
             <input 
-                className="register-input" // Optional: Add class for styling
+                className="register-input"
                 type="text" 
                 placeholder="ID (Teudat Zehut)" 
                 onChange={(e) => setId(e.target.value)} 
             />
-            {/* 3. Use className="error-msg" */}
             {errors.id && <span className="error-msg">{errors.id}</span>}
 
-            {/* Name Input */}
             <input 
                 className="register-input"
                 type="text" 
@@ -140,7 +136,6 @@ const Register = ()=>{
             />
             {errors.name && <span className="error-msg">{errors.name}</span>}
 
-            {/* Email Input */}
             <input 
                 className="register-input"
                 type="text" 
@@ -149,7 +144,6 @@ const Register = ()=>{
             />
             {errors.email && <span className="error-msg">{errors.email}</span>}
 
-            {/* Phone Input */}
             <input 
                 className="register-input"
                 type="text" 
@@ -158,7 +152,6 @@ const Register = ()=>{
             />
             {errors.phone && <span className="error-msg">{errors.phone}</span>}
 
-            {/* Birthday Input */}
             <div style={{display:'flex', flexDirection:'column'}}>
                 <label style={{fontSize: '0.8rem'}}>Birthday:</label>
                 <input 
@@ -169,7 +162,6 @@ const Register = ()=>{
             </div>
             {errors.birthday && <span className="error-msg">{errors.birthday}</span>}
 
-            {/* Password Input */}
             <input 
                 className="register-input"
                 type="password" 
@@ -178,14 +170,13 @@ const Register = ()=>{
             />
             {errors.password && <span className="error-msg">{errors.password}</span>}
 
-            {/* Server Message with dynamic class */}
             {serverMsg && (
                 <div className={`server-msg ${serverMsg.includes("✅") ? "success" : "error"}`}>
                     {serverMsg}
                 </div>
             )}
 
-            <button type="submit" disabled={loading}>
+            <button type="submit" disabled={loading} className="register-button">
                 {loading ? "Processing..." : "Register"}
             </button>
         </form>

@@ -8,7 +8,7 @@ const Login = () => {
     const navigate = useNavigate()
     const {server, setUser} = useContext(ServerContext)
 
-    const [identifier, setIdentifier] = useState(""); // Can be ID or Email
+    const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
 
     const [loading, setLoading] = useState(false);
@@ -47,8 +47,6 @@ const Login = () => {
 
             if (response.status === 200) {
                 setUser(response.data.user);
-
-                // Login Successful
                 setLoading(false);
                 navigate('/spec-builder', { replace: true });
             }
@@ -69,7 +67,6 @@ const Login = () => {
         <form className="login-container" onSubmit={(e) => { e.preventDefault(); LoginHandler(); }}>
             <h1>Page Login</h1>
             
-            {/* Identifier Input (ID or Email) */}
             <input 
                 className="login-input"
                 type="text" 
@@ -77,10 +74,8 @@ const Login = () => {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)} 
             />
-            {/* Specific error for empty ID/Email */}
             {fieldErrors.identifier && <span className="error-msg">{fieldErrors.identifier}</span>}
 
-            {/* Password Input */}
             <input 
                 className="login-input"
                 type="password" 
@@ -88,10 +83,8 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)} 
             />
-            {/* Specific error for empty Password */}
             {fieldErrors.password && <span className="error-msg">{fieldErrors.password}</span>}
 
-            {/* General Error Message (The Red Box for wrong credentials) */}
             {generalError && (
                 <div className="general-error">
                     {generalError}

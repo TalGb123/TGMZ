@@ -29,7 +29,6 @@ const checkCpuGpuRelationship = (targetCpu, targetGpu, errors, warnings) => {
 };
 
 export const checkCompatibility = (part, selections) => {
-    // Dynamically look up selected parts by matching their explicit category string
     const currentParts = Object.values(selections).filter(Boolean);
     
     const cpu = currentParts.find(p => p.category === "CPU");

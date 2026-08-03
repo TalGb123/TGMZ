@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useMemo } from "react";
 import { ServerContext } from "../../App";
 import "../css/category-list.css";
 import { checkCompatibility } from "../../utils/compatibility.js";
+import { Link, useNavigate } from 'react-router-dom';
 
 const normalizePart = (p) => {
     const clone = { ...p };
@@ -71,7 +72,7 @@ const FILTERS = {
         { key: "memory_gen", type: "select", label: "Memory Generation" },
         { key: "has_bluetooth_wifi", type: "select", label: "Has Bluetooth & Wifi" },
         { key: "m2_slots", type: "select", label: "SSD NVME Slots" },
-        { key: "connections", type: "select", label: "Connections" }, // Reverted back to select
+        { key: "connections", type: "select", label: "Connections" },
     ],
     Memory: [
         { key: "price", type: "range", label: "Price" },
@@ -127,6 +128,7 @@ const FILTERS = {
 
 const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" }) => {
     const { server } = useContext(ServerContext);
+    const navigate = useNavigate();
     const [parts, setParts] = useState([]);
 
     const [globalOptions, setGlobalOptions] = useState({});
@@ -137,7 +139,6 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
     const [sortBy, setSortBy] = useState(""); 
     const filterDefs = FILTERS[category] || [];
 
-    // ... (Your useEffects for fetchInitialOptions and fetchParts remain exactly the same) ...
     useEffect(() => {
         const fetchInitialOptions = async () => {
             try {
@@ -146,7 +147,6 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                 
                 const map = {};
                 filterDefs.forEach(f => {
-                    // Force true/false options for specific boolean fields
                     if (f.key === "has_apu" || f.key === "has_bluetooth_wifi") {
                         map[f.key] = ["true", "false"];
                     }
@@ -176,14 +176,12 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                         });
                         map[f.key] = Array.from(valuesSet).sort();
                     } 
-                    // Extract unique connection types, ignoring the numbers in front (e.g. "3 USB-C 3.2" -> "USB-C 3.2")
                     else if (f.type === "connections_min") {
                         const keysSet = new Set();
                         normalized.forEach(p => {
                             let val = p[f.key];
                             if (Array.isArray(val)) {
                                 val.forEach(connString => {
-                                    // Split at the first space. e.g "3 USB-C 3.2" -> index 0 is "3", index 1 is "USB-C 3.2"
                                     const firstSpaceIdx = connString.indexOf(' ');
                                     if (firstSpaceIdx !== -1) {
                                         const typeName = connString.slice(firstSpaceIdx + 1).trim();
@@ -202,7 +200,7 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
             }
         };
         if (category) fetchInitialOptions();
-    }, [category, server]); // filterDefs shouldn't be a dependency as it's computed outside
+    }, [category, server]); 
 
     useEffect(() => {
         let isCancelled = false;
@@ -246,8 +244,6 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
         };
     }, [category, server, filter, advFilters, sortBy]);
 
-
-    // --- 4. APPLY COMPATIBILITY AND SORT ---
     const processedParts = useMemo(() => {
         if (!parts) return [];
         
@@ -257,14 +253,13 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
         }).sort((a, b) => {
             // Assign a score: 1 for Perfect, 2 for Yellow Warning, 3 for Red Error
             const getScore = (p) => {
-                if (!p.isCompatible) return 3; // Red
-                if (p.isWarning) return 2;     // Yellow
-                return 1;                      // Clean
+                if (!p.isCompatible) return 3;
+                if (p.isWarning) return 2;     
+                return 1;
             };
             return getScore(a) - getScore(b);
         });
     }, [parts, selections]);
-
 
     if (loading) return <div className="loading-spinner">Loading from Server...</div>;
     if (error) return <div className="error-msg">{error}</div>;
@@ -273,7 +268,6 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
         <div className="category-list-layout">
             <div className="parts-panel">
                 <div className="search-sort-bar">
-                    {/* ... (Search and Sort UI unchanged) ... */}
                     <input
                         type="text"
                         placeholder="Filter parts..."
@@ -298,21 +292,19 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                 
                     <div className="parts-scroll">
                         {viewMode === "grid" ? (
-                            // --- STORE GRID (CUBES) VIEW ---
                             <div className="store-grid">
                                 {processedParts.length > 0 ? (
                                     processedParts.map((part, index) => (
                                         <div key={part._id || index} className="store-card">
-                                            <img 
-                                                src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} 
-                                                alt={part.name} 
-                                                className="store-card-img" 
-                                            />
-                                            <div className="store-card-title">{part.name}</div>
-                                            <div className="store-card-price">₪{part.price}</div>
-                                            <button onClick={() => onSelect(part)} className="store-card-btn">
-                                                Add to Cart
-                                            </button>
+                                            <Link to={`/product/${part._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                <img 
+                                                    src={part.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081"} 
+                                                    alt={part.name} 
+                                                    className="store-card-img" 
+                                                />
+                                                <div className="store-card-title">{part.name}</div>
+                                                <div className="store-card-price">₪{part.price}</div>
+                                            </Link>
                                         </div>
                                     ))
                                 ) : (
@@ -320,7 +312,6 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                                 )}
                             </div>
                         ) : (
-                            // --- SPEC BUILDER (TABLE) VIEW ---
                             <table className="parts-table">
                                 <thead>
                                     <tr>
@@ -374,7 +365,6 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
 
             {filterDefs.length > 0 && (
                 <div className="filters-panel">
-                    {/* ... (Filters sidebar unchanged) ... */}
                     <h4>Filters</h4>
                     <div className="filters-scrollable">
                         {filterDefs.map(f =>

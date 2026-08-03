@@ -53,7 +53,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [onClose]);
 
-    // Handlers for multi-select buttons
     const toggleUsage = (option) => {
         setUsage(prev => 
             prev.includes(option) 
@@ -90,7 +89,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                 <div className="questionnaire-body">
                     <h4>Welcome to the PC Builder Questionnaire! This tool will help us understand your preferences and requirements.</h4>
                     
-                    {/* 1. STICKY BUDGET PANEL */}
                     <div className="sticky-budget-panel">
                         <div className="question" style={{ marginBottom: 0 }}>
                             <label>1. What is your max budget for this PC build? (₪)</label>
@@ -103,19 +101,13 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                     onChange={(e) => setBudget(e.target.value)}
                                     min="0"
                                 />
-                                {/* Placeholder for your future live price estimator */}
-                                <div className="estimated-price-placeholder">
-                                    Est. Price: 0 ₪
-                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* SCROLLABLE AREA FOR THE REST OF THE QUESTIONS */}
                     <div className="questionnaire-scroll-area">
                         <div className="questionnaire-questions">
-                            
-                            {/* 2. Usage (Multi-select) */}
+
                             <div className="question">
                                 <label>2. What is your primary use for this PC? (Select multiple if needed)</label>
                                 <div className="button-group">
@@ -131,7 +123,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             </div>
 
-                            {/* --- CONDITIONAL GAMING SUB-QUESTIONS --- */}
                             {usage.includes("Gaming") && (
                                 <div className="gaming-sub-questions">
                                     <div className="question sub-question">
@@ -161,7 +152,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             )}
 
-                            {/* --- CONDITIONAL CONTENT CREATION SUB-QUESTIONS --- */}
                             {usage.includes("Content Creation") && (
                                 <div className="gaming-sub-questions">
                                     <div className="question sub-question">
@@ -175,7 +165,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             )}
 
-                            {/* --- CONDITIONAL AI SUB-QUESTIONS --- */}
                             {usage.includes("Training AI Models") && (
                                 <div className="gaming-sub-questions">
                                     <div className="question sub-question">
@@ -189,7 +178,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             )}
 
-                            {/* --- CONDITIONAL GENERAL USE SUB-QUESTIONS --- */}
                             {usage.includes("General Use") && (
                                 <div className="gaming-sub-questions">
                                     <div className="question sub-question">
@@ -203,7 +191,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             )}
 
-                            {/* 3. STORAGE REPLACEMENT */}
                             <div className="question">
                                 <label>3. How much storage space do you need?</label>
                                 <div className="button-group">
@@ -219,7 +206,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             </div>
 
-                            {/* 4. WiFi + Bluetooth */}
                             <div className="question">
                                 <label>4. Do you need built-in WiFi & Bluetooth?</label>
                                 <div className="button-group">
@@ -238,7 +224,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             </div>
 
-                            {/* 5. Physical Size Preference */}
                             <div className="question">
                                 <label>5. Do you have a preference for the physical size of the PC?</label>
                                 <div className="button-group">
@@ -254,7 +239,6 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 </div>
                             </div>
 
-                            {/* 4. Preferences (Multi-select) */}
                             <div className="question">
                                 <label>4. Any specific preferences? (Select all that apply)</label>
                                 <div className="button-group mini">
@@ -272,9 +256,7 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
 
                         </div>
                     </div> 
-                    {/* End Scrollable Area */}
-                    
-                    {/* Submit logic */}
+
                     <div className="questionnaire-footer">
                         <button 
                             className="submit-btn" 
@@ -284,12 +266,10 @@ const Questionnaire = ({ onClose, onBuildGenerated }) => {
                                 
                                 setIsLoading(true);
                                 try {
-                                    // 1. Fetch the generated build from the server
                                     const res = await server.post('/builds/generate', strictFilters);
                                     
                                     console.log("Full Gemini JSON Response:", res.data);
 
-                                    // 2. Pass the data back to SpecBuilder to populate the UI
                                     if (onBuildGenerated) {
                                         onBuildGenerated(res.data);
                                     }

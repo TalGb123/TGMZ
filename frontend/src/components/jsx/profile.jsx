@@ -8,7 +8,6 @@ const SavedBuildAccordion = ({ savedBuild, server, user, setUser }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState(savedBuild.buildName);
     
-    // The populated build data from the backend
     const buildData = savedBuild.buildRef;
 
     const handleRename = async () => {
@@ -117,6 +116,8 @@ export default function Profile() {
     const [errors, setErrors] = useState({});
     const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
     const [isLoading, setIsLoading] = useState(false);
+    
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -268,7 +269,30 @@ export default function Profile() {
 
                 <div className="form-group">
                     <label>Password</label>
-                    <input type="text" name="password" value={userData.password} onChange={handleInputChange} />
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input 
+                            type={showPassword ? "text" : "password"} 
+                            name="password" 
+                            value={userData.password} 
+                            onChange={handleInputChange} 
+                            style={{ flex: 1 }} 
+                        />
+                        <button 
+                            type="button" 
+                            onClick={() => setShowPassword(!showPassword)}
+                            style={{
+                                padding: '8px 15px',
+                                backgroundColor: '#5865F2',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            {showPassword ? 'Hide' : 'Show'}
+                        </button>
+                    </div>
                     {errors.password && <span className="error-msg" style={{color: '#f04747', fontSize: '12px'}}>{errors.password}</span>}
                 </div>
 
@@ -283,7 +307,6 @@ export default function Profile() {
             {userData.savedBuilds && userData.savedBuilds.length > 0 ? (
                 <div>
                     {userData.savedBuilds.map((savedBuild, index) => (
-                        // Check if buildRef exists (in case a build was deleted globally)
                         savedBuild.buildRef ? (
                             <SavedBuildAccordion 
                                 key={index} 
