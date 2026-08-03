@@ -51,10 +51,13 @@ router.post('/', async (req, res) => {
 // Update product
 router.put('/:id', async (req, res) => {
     try {
-        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
-        if (!updatedProduct) return res.status(404).json({ message: 'Product not found' });
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+        Object.assign(product, req.body);
+        const updatedProduct = await product.save();
         res.json(updatedProduct);
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(400).json({ message: error.message });
     }
 });

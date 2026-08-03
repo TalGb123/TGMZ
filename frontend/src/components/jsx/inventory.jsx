@@ -56,6 +56,7 @@ const CATEGORY_PROPS = {
     { name: "efficiency", type: "select", options: ["80+ White", "80+ Bronze", "80+ Silver", "80+ Gold", "80+ Platinum", "80+ Titanium"], label: "Efficiency Rating" },
     { name: "type", type: "select", options: ["ATX", "SFX"], label: "Type" },
     { name: "modular", type: "select", options: ["Full", "Semi", "No"], label: "Modular" },
+    { name: "performance_tier", type: "text", label: "Performance Tier (e.g. A, B, C)", required: true },
   ],
   VideoCard: [
     { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
@@ -264,10 +265,6 @@ export default function Inventory() {
 
       if (modalCategory === "Case" && Array.isArray(payload.supported_radiators)) {
         payload.supported_radiators = payload.supported_radiators.map(Number).filter(n => !isNaN(n));
-      }
-
-      if (modalCategory === "Storage" && payload.drive_type) {
-        payload.type = payload.drive_type;
       }
 
       if (editingItem && editingItem._id) {
