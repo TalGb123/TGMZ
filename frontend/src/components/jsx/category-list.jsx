@@ -347,8 +347,16 @@ const CategoryList = ({ category, onSelect, selections = {}, viewMode = "table" 
                                                     {icon && <span title={part.reason} style={{ cursor: "help", marginLeft: "8px", fontSize: "1.2em" }}>{icon}</span>}
                                                 </td>
                                                 <td className="part-price-cell">₪{part.price}</td>
-                                                <td style={{ textAlign: "right" }}>
-                                                    <button onClick={() => onSelect(part)} className="add-btn">Add</button>
+                                                <td style={{ display: "flex", justifyContent: "flex-end", gap: "8px", alignItems: "center" }}>
+                                                    <Link 
+                                                        to={`/product/${part._id}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="action-btn view-btn"
+                                                    >
+                                                        View
+                                                    </Link>
+                                                    <button onClick={() => onSelect(part)} className="action-btn add-btn">Add</button>
                                                 </td>
                                             </tr>
                                         );
